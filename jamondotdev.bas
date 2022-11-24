@@ -52,7 +52,7 @@ Do
             ' If this connection is active
             If client_handle(c) Then
                 ' work on the request in an effort to finish it
-                If try_complete_request(c) Then
+                If handle_request(c) Then
                     Print "Completed request for: " + client_uri(c)
                     Print " from " + _ConnectionAddress(client_handle(c))
                     Print " using " + client_browser(c)
@@ -101,7 +101,7 @@ Do
 
     ' Limit CPU usage and leave some time for stuff be sent across the network..I have it as high as 1000 on my Front End
     _Limit 500 ' default 50
-Loop Until InKey$ <> "" ' any keypress quits!
+Loop Until InKey$ = CHR$(27) ' escape quits
 
 ' After a keypress, close all connections and quit
 Close #host
@@ -129,7 +129,7 @@ Sub tear_down (c As Integer)
 End Sub
 
 ' Attempt to complete a request
-Function try_complete_request% (c As Integer)
+Function handle_request% (c As Integer)
     ' Import the shared arrays
     Shared client_handle() As Integer
     Shared client_uri() As String
@@ -298,43 +298,34 @@ Function try_complete_request% (c As Integer)
     End If
 
     'assume the request can be completed; set to 0 if it can't.
-    try_complete_request = 1
+    handle_request = 1
     Select Case client_method(c)
         Case METHOD_HEAD
             respond c, "HTTP/1.1 200 OK", ""
         Case METHOD_GET
             ' Router!
             If client_uri(c) = "/" Then
-                respond c, "HTTP/1.1 200 OK", "Hello, world!"
+                title$ = "HOME " + client_uri(c)
+
+                html$ = "<html><head>"
+                html$ = html$ + "<title>" + title$ + "</title>"
+                html$ = html$ + "</head><body>"
+                html$ = html$ + "<h1>" + title$ + "</h1>"
+                html$ = html$ + "</body></html>" + CRLF
+            ElseIf Left$(client_uri(c), 7) = "/about/" Then
+                title$ = "ABOUT " + client_uri(c)
+
+                html$ = "<html><head>"
+                html$ = html$ + "<title>" + title$ + "</title>"
+                html$ = html$ + "</head><body>"
+                html$ = html$ + "<h1>" + title$ + "</h1>"
+                html$ = html$ + "</body></html>" + CRLF
             Else
-                ' Read the response.md file
-                ' (this is a file that contains the response to the request)
-                ' and send it back to the client
-                '
-                respond c, "HTTP/1.1 200 OK", "Hello subpage2! " + client_uri(c)
-
-                try_complete_request = 0
-            End If
-
-            html$ = "<html><head>"
-            html$ = html$ + "</head>"
-            html$ = html$ + "<body>"
-            html$ = "<body>You requested nothing <tt>"
-            '        html$ = html$ + "<iframe src='http://sw.remote.mx/' style='border:1px  solid" + CHR$(59) + QT + " name='Street' scroling='auto' frameborder='yes" + " align='center' height = '100%' width = '100%'>" + "</iframe>"
-
-            html$ = html$ + client_uri(c) + "</tt><form action='/' method='post'>"
-            ' change address to suit your server and needs also can be an Android APP.
-            'html$ = html$ + "<iframe src='http://192.168.1.15:8090/Crawler_p.html' style='border:1px  solid" + Chr$(59) + QT + " name='Street' scroling='auto' frameborder='yes" + " align='center' height = '50%' width = '75%'>" + "</iframe>"
-            'html$ = html$ + "<iframe src='http://192.168.1.15:8090/IndexCreateLoaderQueue_p.html' style='border:1px  solid" + Chr$(59) + QT + " name='Street' scroling='auto' frameborder='yes" + " align='center' height = '100%' width = '100%'>" + "</iframe>"
-            'html$ = html$ + "<iframe src='http://192.168.1.15:8090/Status.html' style='border:1px  solid" + Chr$(59) + QT + " name='Street' scroling='auto' frameborder='yes" + " align='center' height = '100%' width = '100%'>" + "</iframe>"
-            'html$ = html$ + "<iframe src='http://192.168.1.15:8090/Performance_p.html' style='border:1px  solid" + Chr$(59) + QT + " name='Street' scroling='auto' frameborder='yes" + " align='center' height = '100%' width = '100%'>" + "</iframe>"
-            'html$ = html$ + "<iframe src='http://192.168.1.15:8090/ConfigHTCache_p.html' style='border:1px  solid" + Chr$(59) + QT + " name='Street' scroling='auto' frameborder='yes" + " align='center' height = '100%' width = '100%'>" + "</iframe>"
-
-            html$ = html$ + "<input type='text' name='var1' value='val1' />"
-            html$ = html$ + "<input type='text' name='var2' value='val2' />"
-            html$ = html$ + "<input type='submit' value='send a POST query'>"
-            html$ = html$ + "</form></body></html>" + CRLF
-
+                ' 404 not found
+                respond c, "HTTP/1.1 404 Not Found", "404 Not Found"
+                Exit Function
+            End If            
+            
             respond c, "HTTP/1.1 200 OK", html$
         Case METHOD_POST
             GoTo unimplemented
@@ -349,16 +340,16 @@ Function try_complete_request% (c As Integer)
 
     large_request:
     respond c, "HTTP/1.1 413 Request Entity Too Large", ""
-    try_complete_request = 1
+    handle_request = 1
     Exit Function
 
     bad_request:
     respond c, "HTTP/1.1 400 Bad Request", ""
-    try_complete_request = 1
+    handle_request = 1
     Exit Function
     unimplemented:
     respond c, "HTTP/1.1 501 Not Implemented", ""
-    try_complete_request = 1
+    handle_request = 1
     Exit Function
 
     runtime_internal_error:
@@ -366,7 +357,7 @@ Function try_complete_request% (c As Integer)
     Resume internal_error
     internal_error:
     respond c, "HTTP/1.1 500 Internal Server Error", ""
-    try_complete_request = 1
+    handle_request = 1
     Exit Function
 End Function
 
