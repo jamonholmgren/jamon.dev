@@ -189,6 +189,8 @@ Function try_complete_request% (c As Integer)
             If first_line Then
                 'First line looks something like
                 'GET /index.html HTTP/1.1
+                
+                ' Not the first line anymore, after this
                 first_line = 0
 
                 ' First space separates the method from the uri
@@ -199,7 +201,7 @@ Function try_complete_request% (c As Integer)
                 ' Second space separates the uri from the protocol
                 uriSpace = InStr(methodSpace + 1, cur_line, " ")
                 If uriSpace = 0 Then GoTo bad_request
-                client_uri(c) = Mid$(cur_line, methodSpace + 1, uriSpace - (space + 1))
+                client_uri(c) = Mid$(cur_line, methodSpace + 1, uriSpace - (methodSpace + 1))
                 If Len(client_uri(c)) = 0 Then GoTo bad_request
 
                 ' The rest is the protocol
@@ -309,7 +311,7 @@ Function try_complete_request% (c As Integer)
                 ' (this is a file that contains the response to the request)
                 ' and send it back to the client
                 '
-                respond c, "HTTP/1.1 200 OK", "Hello subpage! " + client_uri(c)
+                respond c, "HTTP/1.1 200 OK", "Hello subpage2! " + client_uri(c)
 
                 try_complete_request = 0
             End If
