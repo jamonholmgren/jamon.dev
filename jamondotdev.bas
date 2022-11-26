@@ -101,7 +101,7 @@ Do
 
     ' Limit CPU usage and leave some time for stuff be sent across the network..I have it as high as 1000 on my Front End
     _Limit 500 ' default 50
-Loop Until InKey$ = CHR$(27) ' escape quits
+Loop Until InKey$ = Chr$(27) ' escape quits
 
 ' After a keypress, close all connections and quit
 Close #host
@@ -138,6 +138,10 @@ Function handle_request% (c As Integer)
     Shared client_content_length() As Long
     Shared client_request() As String
     Shared client_method() As Integer
+
+    ' Start timer
+    Dim start_timer As Single
+    start_timer = Timer(.001)
 
     ' Apparently QB64 doesn't support this yet
     ' ON LOCAL ERROR GOTO runtime_internal_error
@@ -304,28 +308,30 @@ Function handle_request% (c As Integer)
             respond c, "HTTP/1.1 200 OK", ""
         Case METHOD_GET
             ' Router!
-            If client_uri(c) = "/" Then
-                title$ = "HOME " + client_uri(c)
+            Select Case 1
+                Case Len(client_uri(c)) ' hack .. probably just "/" so we capture home page
+                    html$ = home_page$
+                Case InStr(client_uri(c), "/beginnings")
+                    html$ = beginnings_page$
+                Case InStr(client_uri(c), "/favicon.ico")
+                    ' html$ = favicon(c)
+                    GoTo not_found
+                Case InStr(client_uri(c), "/robots.txt")
+                    ' html$ = robots_txt()
+                    GoTo not_found
+                Case InStr(client_uri(c), "/styles.css")
+                    ' html$ = style()
+                    GoTo unimplemented
+                Case InStr(client_uri(c), "/script.js")
+                    ' html$ = script()
+                    GoTo unimplemented
+                Case InStr(client_uri(c), "/images/")
+                    ' html$ = handle_image(client_uri(c))
+                    GoTo unimplemented
+                Case Else
+                    GoTo not_found
+            End Select
 
-                html$ = "<html><head>"
-                html$ = html$ + "<title>" + title$ + "</title>"
-                html$ = html$ + "</head><body>"
-                html$ = html$ + "<h1>" + title$ + "</h1>"
-                html$ = html$ + "</body></html>" + CRLF
-            ElseIf Left$(client_uri(c), 7) = "/about/" Then
-                title$ = "ABOUT " + client_uri(c)
-
-                html$ = "<html><head>"
-                html$ = html$ + "<title>" + title$ + "</title>"
-                html$ = html$ + "</head><body>"
-                html$ = html$ + "<h1>" + title$ + "</h1>"
-                html$ = html$ + "</body></html>" + CRLF
-            Else
-                ' 404 not found
-                respond c, "HTTP/1.1 404 Not Found", "404 Not Found"
-                Exit Function
-            End If            
-            
             respond c, "HTTP/1.1 200 OK", html$
         Case METHOD_POST
             GoTo unimplemented
@@ -335,8 +341,15 @@ Function handle_request% (c As Integer)
     End Select
 
     ' Done with all the normal stuff. Everything past this point is just helper "functions" (actually gotos)
+    Dim total_time As Single
+    total_time = Timer(.001) - start_timer
+    Print "Request handled in " + Str$(total_time) + " seconds."
+
     Exit Function
 
+    not_found:
+    respond c, "HTTP/1.1 404 Not Found", "404 Not Found"
+    Exit Function
 
     large_request:
     respond c, "HTTP/1.1 413 Request Entity Too Large", ""
@@ -355,6 +368,7 @@ Function handle_request% (c As Integer)
     runtime_internal_error:
     Print "RUNTIME ERROR: Error code"; Err; ", Line"; _ErrorLine
     Resume internal_error
+    
     internal_error:
     respond c, "HTTP/1.1 500 Internal Server Error", ""
     handle_request = 1
@@ -456,27 +470,54 @@ Function shrinkspace$ (str1 As String)
     shrinkspace = str1
 End Function
 
-' Github Copilot's version of reading a file, let's see if it works.
-'Function readfile$ (filename As String)
-'    Dim f As Integer
-'    Dim size As Integer
-'Dim buf() As Byte
-'    Dim i As Integer
-'Dim str As String
+Function full_html$ (title As String, body As String)
+    h$ = "<!DOCTYPE html>" + CRLF
+    h$ = h$ + "<html>" + CRLF
+    h$ = h$ + "<head>" + CRLF
+    h$ = h$ + "<title>" + title + "</title>" + CRLF
+    h$ = h$ + "<style>" + CRLF
 
-'    f = FreeFile
-'    Open filename For Binary Access Read As #f
-'    size = LOF(f)
-'ReDim buf(0 To size - 1) As Byte
-'    Get #f, , buf
-'    Close #f
+    ' Load the styles from styles.css and add to h$
+    Open "styles.css" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
 
-'str = ""
-'    For i = 0 To size - 1
-'    str = str + Chr$(buf(i))
-'    Next
-'readfile = str
-'End Function
+    h$ = h$ + "</style>" + CRLF
+    h$ = h$ + "</head>" + CRLF
+    h$ = h$ + "<body>" + CRLF
+    h$ = h$ + body + CRLF
+    h$ = h$ + "<script>" + CRLF
 
+    ' Load the scripts from scripts.js and add to h$
+    Open "scripts.js" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
 
+    h$ = h$ + "</script>" + CRLF
+    h$ = h$ + "</body>" + CRLF
+    h$ = h$ + "</html>" + CRLF
+    full_html = h$
+End Function
+
+Function home_page$ ()
+    h$ = "<h1>Jamon's home page</h1>" + CRLF
+    h$ = h$ + "<p>Full page</p>" + CRLF
+
+    home_page = full_html$("Jamon Holmgren's website", h$)
+End Function
+
+Function beginnings_page$ ()
+    h$ = "<h1>Beginnings</h1>" + CRLF
+    h$ = h$ + "<p>I grew up just outside a small town in northwest Oregon, called Clatskanie. My dad was a millwright and eventually started his own small excavation business, and my mom took care of me and my eight siblings. Yes, you read that right — I have eight awesome siblings! Three sisters and five brothers. And no, we're not Mormon nor Catholic — we're Lutherans, actually.</p>"
+
+    h$ = h$ + "<p>My childhood was really idyllic in a lot of ways. My parents bought a foreclosed home on a VA loan (my dad served in the US Army just after Vietnam). The house was situated on about eight acres and was bordered by vast swathes of uninhabited timberland. I spent my younger years exploring the woods with my dog and, later, some of my younger brothers.</p>"
+
+    beginnings_page = full_html$("Beginnings - Jamon Holmgren", h$)
+End Function
 
