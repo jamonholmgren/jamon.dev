@@ -505,7 +505,30 @@ Function full_html$ (title As String, body As String)
     full_html = h$
 End Function
 
+' Function load_page$ (pagename as String)
+'     title$ = "Jamon Holmgren's Personal Website"
+
+'     h$ = ""
+
+'     ' Read the home page and return it
+'     Open "./pages/" + pagename + ".html" For Input As #1
+'     Do While Not EOF(1)
+'         Line Input #1, line$
+        
+'         if line$ = "<!--TITLE-->" Then
+'             ' next line is the title! let's read it
+'             Line Input #1, line$
+'             title$ = line$
+'         End If
+
+'         h$ = h$ + line$ + CRLF
+'     Loop
+
+'     load_page = full_html$("Jamon Holmgren's website", h$)
+' End Function
+
 Function home_page$ ()
+    ' Read the home page and return it
     h$ = "<h1>Jamon's home page</h1>" + CRLF
     h$ = h$ + "<p>Full page</p>" + CRLF
 
