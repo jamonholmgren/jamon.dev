@@ -1,54 +1,39 @@
 # Jamon.dev -- QB64 website
 
-This website is built in [QB64](https://qb64.com/). Yes, it's weird! But ... it works.
+This website is built in [QB64](https://qb64.com/), which is a slightly more modern version of the venerable old QBasic I used to do. Yes, it's weird! But ... it works.
+
+## The Code
+
+You can find all of the code in `./jamondotdev.bas`. I started building a way to serve up static pages in `./pages/*.html`, but haven't finished it yet.
+
+It includes a small router that handles subpages like `http://localhost:8080/subpage`. Check out the `handle_request` function.
+
+## Building
+
+Install a version of QB64 and open the `jamondotdev.bas` file. You can then create an executable from there, or run it directly.
+
+Once it's running (you'll see a terminal pop up with a blank black screen), go to http://localhost:8080. The website will pop up and you'll see something like:
+
+```
+Request handled in .0060625 seconds.
+Completed request for: /
+ from TCP/IP:46557:127.0.0.1
+ using Mozilla/5.0 (Macintosh...)
+```
+
+...show up in the terminal.
+
+I started working on supporting CSS and JS files, and may complete that at some point.
 
 ## Hosting
 
-I'm hosting the website on DigitalOcean's smallest "droplet", running Ubuntu Linux.
-
-To make a compatible build, it's a little annoying. You have to be running Ubuntu.
-
-Best way is with Parallels. I tried with VirtualBox and ... well, that didn't go so well. Good luck, if you're not willing to pay for Parallels!
-
-You can, of course, have a different computer running Linux, or if you're running Linux already, you're good to go.
-
-So I installed a version of Ubuntu on my Mac Studio using Parallels. I ran the virtual machine and opened up Firefox. I downloaded QB64 from https://qb64.com, and extracted it.
-
-I went into a terminal, cd'd into the extracted folder, and ran this:
+I spent a couple days trying to figure out how to host this, but it seems that it's not practical. The closest I got was a DigitalOcean Ubuntu Droplet, but since QB64 doesn't natively support operating systems without GUIs (this is rather ironic to me), it just errors with this and quits:
 
 ```
-sudo apt-get update -y
-./setup_lnx.sh
+freeglut (./qb64):
+Error: Process completed with exit code 1.
 ```
 
-This should install all the dependencies.
+Unfortunate, as it would be really cool to host this somewhere!
 
-Now, to test the compiler, do this:
-
-```
-echo "PRINT 1" > ./test.bas
-./qb64 ./test.bas -c -o ./test
-./test
-```
-
-You should see a terminal window appear that shows just the number 1 in it.
-
-To make qb64 available everywhere, I made a softlink to it in ./usr/local/bin/qb64
-
-```
-
-```
-
-I then clicked the Parallels menu Devices -> Sharing -> Add a folder, and shared this project with the Ubuntu VM. Then I could compile the ./jamondotdev.bas file anytime.
-
-```
-./qb64 ../JamonBAS/jamondotdev.bas -c -o ./jamondotdev_lnx
-```
-
-It appears that Ubuntu doesn't like trying to read files, for some reason. This causes it to not compile.
-
-On DigitalOcean, I provisioned a new "Droplet" using Ubuntu, and then assigned a subdomain (qb64.jamon.dev) to that Droplet. I had to add an A record to qb64.jamon.dev pointing the proper IP, which you can see in the Droplet dashboard.
-
-After provisioning the droplet, I ssh'd into it.
-
-(TODO!)
+I _could_ host it from my home Mac and serve it up using a dynamic IP, but ... eh.
