@@ -12,12 +12,5 @@ jobs:
         run: tar -xf ./qb64_lnx.tgz.gz
       - name: Rename QB64 folder
         run: mv ./qb64_2022-09-08-23-38-12_47f5044_lnx ./qb64
-      - name: Run Linux setup script
-        run: ./qb64/setup_lnx.sh
-      - name: Create test file
-        run: echo "PRINT 51" > ./test.bas
-      - name: Try test compile
-        working-directory: ./qb64
-        run: ./qb64 ../test.bas -c -o ../test_lnx_bin
-      - name: List files
-        run: ls -al
+      - name: Examine the setup script
+        run: cat ./qb64/setup_lnx.sh
