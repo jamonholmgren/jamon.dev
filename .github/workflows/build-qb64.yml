@@ -6,6 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: curl  -L -o ./qb64_lnx.tgz.gz https://github.com/QB64Official/qb64/releases/download/v2.1/qb64_dev_2022-09-08-07-14-00_47f5044_lnx.tar.gz
-      - run: tar -xf ./qb64_lnx.tgz.gz
-      - run: cd ./qb64_2022-09-08-23-38-12_47f5044_lnx && ls -al
+      - name: Download QB64
+        run: curl  -L -o ./qb64_lnx.tgz.gz https://github.com/QB64Official/qb64/releases/download/v2.1/qb64_dev_2022-09-08-07-14-00_47f5044_lnx.tar.gz
+      - name: Unzip QB64
+        run: tar -xf ./qb64_lnx.tgz.gz
+      - name: Run Linux setup script
+        working_directory: ./qb64_2022-09-08-23-38-12_47f5044_lnx
+        run: sh ./setup_lnx.sh
