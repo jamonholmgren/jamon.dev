@@ -18,3 +18,10 @@ jobs:
         run: sudo apt-get -y install g++ x11-utils mesa-common-dev libglu1-mesa-dev libasound2-dev zlib1g-dev
       - name: Test qb64
         run: ./qb64/qb64 --help
+      - name: Create test file
+        run: echo "PRINT 51" > ./test.bas
+      - name: Try test compile
+        working-directory: ./qb64
+        run: ./qb64 ../test.bas -c -o ../test_lnx_bin
+      - name: List files
+        run: ls -al
