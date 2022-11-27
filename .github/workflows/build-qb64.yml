@@ -11,5 +11,5 @@ jobs:
       - name: Unzip QB64
         run: tar -xf ./qb64_lnx.tgz.gz
       - name: Run Linux setup script
-        working_directory: ./qb64_2022-09-08-23-38-12_47f5044_lnx
+        working-directory: ./qb64_2022-09-08-23-38-12_47f5044_lnx
         run: sh ./setup_lnx.sh
