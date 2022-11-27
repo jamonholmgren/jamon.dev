@@ -19,6 +19,6 @@ jobs:
       - name: List files
         run: ls -al
       - name: Try test compile
-        run: ./qb64/qb64 -c ./test.bas
+        run: ./run_qb64.sh -c ./test.bas
       - name: List files
         run: ls -al
