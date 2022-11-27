@@ -18,6 +18,8 @@ jobs:
         run: echo "PRINT 51" > ./test.bas
       - name: List files
         run: ls -al
+      - name: Examine run_qb64.sh
+        run: cat ./run_qb64.sh
       - name: Try test compile
         run: ./run_qb64.sh -c ./test.bas
       - name: List files
