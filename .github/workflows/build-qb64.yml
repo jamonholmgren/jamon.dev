@@ -16,6 +16,8 @@ jobs:
         run: ./qb64/setup_lnx.sh
       - name: Create test file
         run: echo "PRINT 51" > ./test.bas
+      - name: List files
+        run: ls -al
       - name: Try test compile
         run: ./qb64/qb64 -c ./test.bas
       - name: List files
