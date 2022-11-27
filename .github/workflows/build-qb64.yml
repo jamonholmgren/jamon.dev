@@ -12,16 +12,18 @@ jobs:
         run: tar -xf ./qb64_lnx.tgz.gz
       - name: Rename QB64 folder
         run: mv ./qb64_2022-09-08-23-38-12_47f5044_lnx ./qb64
-      - name: Examine the setup script
-        run: cat ./qb64/setup_lnx.sh
-      - name: Install dependencies
-        run: sudo apt-get -y install g++ x11-utils mesa-common-dev libglu1-mesa-dev libasound2-dev zlib1g-dev
+      - name: Run the setup script
+        working-directory: ./qb64
+        run: ./setup_lnx.sh
       - name: Test qb64
-        run: ./qb64/qb64 --help
+        working-directory: ./qb64
+        run: ./qb64 --help
       - name: Create test file
+        working-directory: ./qb64
         run: echo "PRINT 51" > ./test.bas
       - name: Try test compile
         working-directory: ./qb64
-        run: ./qb64 ../test.bas -c -o ../test_lnx_bin
+        run: ./qb64 ./test.bas -c -o ./test_lnx_bin
       - name: List files
+        working-directory: ./qb64
         run: ls -al
