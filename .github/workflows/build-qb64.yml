@@ -14,3 +14,7 @@ jobs:
         run: mv ./qb64_2022-09-08-23-38-12_47f5044_lnx ./qb64
       - name: Examine the setup script
         run: cat ./qb64/setup_lnx.sh
+      - name: Install dependencies
+        run: sudo apt-get -y install g++ x11-utils mesa-common-dev libglu1-mesa-dev libasound2-dev zlib1g-dev
+      - name: Test qb64
+        run: ./qb64/qb64 --help
