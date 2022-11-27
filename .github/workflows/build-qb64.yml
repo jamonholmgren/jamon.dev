@@ -10,6 +10,13 @@ jobs:
         run: curl  -L -o ./qb64_lnx.tgz.gz https://github.com/QB64Official/qb64/releases/download/v2.1/qb64_dev_2022-09-08-07-14-00_47f5044_lnx.tar.gz
       - name: Unzip QB64
         run: tar -xf ./qb64_lnx.tgz.gz
+      - name: Rename QB64 folder
+        run: mv ./qb64_2022-09-08-23-38-12_47f5044_lnx ./qb64
       - name: Run Linux setup script
-        working-directory: ./qb64_2022-09-08-23-38-12_47f5044_lnx
-        run: ./setup_lnx.sh
+        run: ./qb64/setup_lnx.sh
+      - name: Create test file
+        run: echo "PRINT 51" > ./test.bas
+      - name: Try test compile
+        run: ./qb64/qb64 -c ./test.bas
+      - name: List files
+        run: ls -al
