@@ -27,3 +27,6 @@ jobs:
       - name: List files
         working-directory: ./qb64
         run: ls -al
+      - name: Run test file
+        working-directory: ./qb64
+        run: ./test_lnx_bin
