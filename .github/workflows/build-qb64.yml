@@ -23,7 +23,7 @@ jobs:
         run: echo "PRINT 51" > ./test.bas
       - name: Try test compile
         working-directory: ./qb64
-        run: ./qb64 ./test.bas -c -o ./test_lnx_bin
+        run: ./qb64 ./test.bas -x -o ./test_lnx_bin
       - name: List files
         working-directory: ./qb64
         run: ls -al
