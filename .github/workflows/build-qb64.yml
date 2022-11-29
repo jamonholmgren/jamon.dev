@@ -20,7 +20,7 @@ jobs:
         run: ./qb64 --help
       - name: Create test file
         working-directory: ./qb64
-        run: echo "PRINT 51" > ./test.bas
+        run: echo "$Console:Only\nPRINT 51" > ./test.bas
       - name: Try test compile
         working-directory: ./qb64
         run: ./qb64 ./test.bas -x -o ./test_lnx_bin
