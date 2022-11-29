@@ -2,6 +2,8 @@
 ' Retrieved 2022-11-23 by Jamon Holmgren
 ' Modified to power http://qb.jamon.dev
 
+$Console:Only
+
 ' Variables are integers by default if they start with a-z
 DefInt A-Z
 
