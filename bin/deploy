@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This script is used to deploy the application to a DigitalOcean Ubuntu droplet.
+# It is assumed that the droplet has been created and the SSH key has been
+# added to the droplet.
+
+# Constants -- change these to match your setup
+DOMAIN="qb.jamonholmgren.com"
+# The below are probably accurate if you have a default Ubuntu DigitalOcean droplet.
+SSH_USER="root"
+REMOTE_FOLDER="/root/build"
+REMOTE_QB64_FOLDER="/root/qb64"
+
+# First, ensure we are not running from this ./bin folder.
+if [ ! -d ./bin ]; then
+  echo "Please run this script from the root of the project."
+  exit 1
+fi
+
+# Ensure there is a ./build folder on the server
+ssh $SSH_USER@$DOMAIN "mkdir -p $REMOTE_FOLDER"
+
+# Copy the current folder to the server
+scp -r ./* $SSH_USER@$DOMAIN:$REMOTE_FOLDER/build/
+
+# Install qb64 if it is not already installed
+ssh $SSH_USER@$DOMAIN "cd $REMOTE_FOLDER/build && ./bin/install_qb64"
+
+# Run the build script
+ssh $SSH_USER@$DOMAIN "cd $REMOTE_FOLDER/build && ../qb64/qb64 -x -o $REMOTE_FOLDER/qb64_server ./app.bas"
+
+# Kill any active qb64_server processes running on port 80
+ssh $SSH_USER@$DOMAIN "lsof -t -i:80 | xargs -r kill"
+
+# Start the server in the background
+ssh $SSH_USER@$DOMAIN "cd $REMOTE_FOLDER && ./qb64_server &"

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# If ./qb64/qb64 exists, then we can skip the install step.
+if [ -f ./qb64/qb64 ]; then
+  echo "./qb64/qb64 exists ... skipping install step."
+  echo "To force reinstall, delete the ./qb64 folder"
+  exit 0
+fi
+
+# Download the latest qb64 source code
+curl -L -o ./qb64_lnx.tgz.gz https://github.com/QB64Official/qb64/releases/download/v2.1/qb64_dev_2022-09-08-07-14-00_47f5044_lnx.tar.gz
+
+# Unzip the file
+tar -xf ./qb64_lnx.tgz.gz
+
+# Let's use ./qb64 as the folder name
+mv ./qb64_2022-09-08-23-38-12_47f5044_lnx ./qb64
+
+# In ./qb64/setup_lnx.sh, replace the first instance of "exit 1" with "# exit 1"
+sed -i 's/exit 1/# exit 1/' ./qb64/setup_lnx.sh
+
+# Run the setup script
+./qb64/setup_lnx.sh
