@@ -317,10 +317,10 @@ Function handle_request% (c As Integer)
         Case METHOD_GET
             ' Router!
             Select Case 1
-                Case Len(client_uri(c)) ' hack .. probably just "/" so we capture home page
-                    html$ = home_page$
+                Case Len(client_uri(c)) ' hack .. length of 1 is probably just "/" so we capture home page
+                    html$ = load_page$("home")
                 Case InStr(client_uri(c), "/beginnings")
-                    html$ = beginnings_page$
+                    html$ = load_page$("beginnings")
                 Case InStr(client_uri(c), "/favicon.ico")
                     ' html$ = favicon(c)
                     GoTo not_found
@@ -483,6 +483,15 @@ Function full_html$ (title As String, body As String)
     h$ = h$ + "<html>" + CRLF
     h$ = h$ + "<head>" + CRLF
     h$ = h$ + "<title>" + title + "</title>" + CRLF
+
+    ' extra head tags
+    Open "./web/head.html" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+
     h$ = h$ + "<style>" + CRLF
 
     ' Load the styles from styles.css and add to h$
@@ -496,16 +505,18 @@ Function full_html$ (title As String, body As String)
     h$ = h$ + "</style>" + CRLF
     h$ = h$ + "</head>" + CRLF
     h$ = h$ + "<body>" + CRLF
+    h$ = h$ + "<main>" + CRLF
     h$ = h$ + body + CRLF
+    h$ = h$ + "</main>" + CRLF
     h$ = h$ + "<script>" + CRLF
 
     ' Load the scripts from scripts.js and add to h$
-    ' Open "scripts.js" For Input As #1
-    ' Do While Not EOF(1)
-    '     Line Input #1, line$
-    '     h$ = h$ + line$ + CRLF
-    ' Loop
-    ' Close #1
+    Open "./web/scripts.js" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
 
     h$ = h$ + "</script>" + CRLF
     h$ = h$ + "</body>" + CRLF
@@ -513,42 +524,42 @@ Function full_html$ (title As String, body As String)
     full_html = h$
 End Function
 
-' Function load_page$ (pagename as String)
-'     title$ = "Jamon Holmgren's Personal Website"
+Function load_page$ (pagename as String)
+    title$ = "Jamon Holmgren's Personal Website"
 
-'     h$ = ""
+    h$ = ""
 
-'     ' Read the home page and return it
-'     Open "./pages/" + pagename + ".html" For Input As #1
-'     Do While Not EOF(1)
-'         Line Input #1, line$
+    ' Load the header from header.html and add to h$
+    Open "./web/header.html" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+
+    ' Load the nav from nav.html and add to h$
+    Open "./web/nav.html" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+
+    ' Read the page and return it
+    Open "./web/pages/" + pagename + ".html" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
         
-'         if line$ = "<!--TITLE-->" Then
-'             ' next line is the title! let's read it
-'             Line Input #1, line$
-'             title$ = line$
-'         End If
+        if line$ = "<!--TITLE" Then
+            h$ = h$ + line$ + CRLF
+            ' next line is the title! let's store it
+            Line Input #1, line$
+            title$ = line$
+        End If
 
-'         h$ = h$ + line$ + CRLF
-'     Loop
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
 
-'     load_page = full_html$("Jamon Holmgren's website", h$)
-' End Function
-
-Function home_page$ ()
-    ' Read the home page and return it
-    h$ = "<h1>Jamon's home page yay</h1>" + CRLF
-    h$ = h$ + "<p>Full page</p>" + CRLF
-
-    home_page = full_html$("Jamon Holmgren's website", h$)
+    load_page = full_html$(title$, h$)
 End Function
-
-Function beginnings_page$ ()
-    h$ = "<h1>Beginnings</h1>" + CRLF
-    h$ = h$ + "<p>I grew up just outside a small town in northwest Oregon, called Clatskanie. My dad was a millwright and eventually started his own small excavation business, and my mom took care of me and my eight siblings. Yes, you read that right — I have eight awesome siblings! Three sisters and five brothers. And no, we're not Mormon nor Catholic — we're Lutherans, actually.</p>"
-
-    h$ = h$ + "<p>My childhood was really idyllic in a lot of ways. My parents bought a foreclosed home on a VA loan (my dad served in the US Army just after Vietnam). The house was situated on about eight acres and was bordered by vast swathes of uninhabited timberland. I spent my younger years exploring the woods with my dog and, later, some of my younger brothers.</p>"
-
-    beginnings_page = full_html$("Beginnings - Jamon Holmgren", h$)
-End Function
-

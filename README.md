@@ -44,3 +44,4 @@ I spent several days trying to figure out how to host this, and finally got it w
 13. Now you have a version of qb64 to compile the source. Exit out of the ssh shell with `exit`
 14. When you're ready to deploy, edit the `./bin/env.sh` script to have your info, and then run `./bin/deploy`
 15. If you need to restart, use `./bin/restart` or `./bin/reboot`
+16. To watch server logs, go into your SSH and then run `tail -f /var/log/syslog`
