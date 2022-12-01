@@ -21,8 +21,8 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/root/qb64_server
-WorkingDirectory=/root
+ExecStart=/root/build/qb64_server
+WorkingDirectory=/root/build
 Restart=always
 RestartSec=5
 StandardOutput=syslog
