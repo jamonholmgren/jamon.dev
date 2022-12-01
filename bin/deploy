@@ -20,7 +20,7 @@ echo "Copying the app to the server"
 scp -r ./* $SSH_USER@$DOMAIN:$REMOTE_REPO_FOLDER
 
 echo "Copying the ./web folder to the build folder"
-ssh $SSH_USER@$DOMAIN "cp -r $REMOTE_REPO_FOLDER/web $REMOTE_BUILD_FOLDER/web"
+ssh $SSH_USER@$DOMAIN "cp -r $REMOTE_REPO_FOLDER/web $REMOTE_BUILD_FOLDER/"
 
 echo "Ensuring qb64 is installed on the server..."
 ssh $SSH_USER@$DOMAIN "$REMOTE_REPO_FOLDER/bin/install_qb64"
