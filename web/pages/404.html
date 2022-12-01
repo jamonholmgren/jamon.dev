@@ -1,3 +1,7 @@
+<!--TITLE
+Jamon's Home page 2
+-->
+
 <h1>You're lost!</h1>
 
 <p>Um, I'm not sure how you got here, but ... I think you're lost!</p>
@@ -24,6 +28,21 @@
   // (e.g. 16 * 25 = 400)
   let grid = 16;
   let count = 0;
+
+  let konami = [
+    "ArrowUp",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowLeft",
+    "ArrowRight",
+    "b",
+    "a",
+  ];
+
+  let konamiProgress = -1;
 
   let snake = {
     x: 160,
@@ -132,11 +151,23 @@
     // left won't do anything, and pressing right while moving left
     // shouldn't let you collide with your own body)
 
-    // left arrow key
+    // arrow keys
     let left = e.which === 37 || e.key === "a";
     let right = e.which === 39 || e.key === "d";
     let up = e.which === 38 || e.key === "w";
     let down = e.which === 40 || e.key === "s";
+
+    console.log(e.key, konamiProgress);
+    if (e.key === konami[konamiProgress + 1]) {
+      konamiProgress++;
+
+      if (konamiProgress === konami.length - 1) {
+        konamiProgress = -1;
+        alert("You found the Konami code!");
+      }
+    } else {
+      konamiProgress = -1;
+    }
 
     console.log(e);
 
