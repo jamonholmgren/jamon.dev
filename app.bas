@@ -486,12 +486,12 @@ Function full_html$ (title As String, body As String)
     h$ = h$ + "<style>" + CRLF
 
     ' Load the styles from styles.css and add to h$
-    ' Open "styles.css" For Input As #1
-    ' Do While Not EOF(1)
-    '     Line Input #1, line$
-    '     h$ = h$ + line$ + CRLF
-    ' Loop
-    ' Close #1
+    Open "./web/styles.css" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
 
     h$ = h$ + "</style>" + CRLF
     h$ = h$ + "</head>" + CRLF

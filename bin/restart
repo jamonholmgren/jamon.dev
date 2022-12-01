@@ -10,7 +10,7 @@ echo "Killing any active processes running on port 80"
 ssh $SSH_USER@$DOMAIN "lsof -t -i:80 | xargs -r kill"
 
 echo "Restarting the watcher service"
-ssh $SSH_USER@$DOMAIN "systemctl restart qb64-watcher.service"
+ssh $SSH_USER@$DOMAIN "systemctl daemon-reload && systemctl restart qb64-watcher.service"
 
 # Start the server
 ./bin/start
