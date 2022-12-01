@@ -311,6 +311,7 @@ Function handle_request% (c As Integer)
 
     'assume the request can be completed; set to 0 if it can't.
     handle_request = 1
+    code$ = "200 OK"
     Select Case client_method(c)
         Case METHOD_HEAD
             respond c, "HTTP/1.1 200 OK", ""
@@ -337,10 +338,11 @@ Function handle_request% (c As Integer)
                     ' html$ = handle_image(client_uri(c))
                     GoTo unimplemented
                 Case Else
-                    GoTo not_found
+                    html$ = load_page$("404")
+                    code$ = "404 Not Found"
             End Select
 
-            respond c, "HTTP/1.1 200 OK", html$
+            respond c, "HTTP/1.1 " + code$, html$
         Case METHOD_POST
             GoTo unimplemented
         Case Else
@@ -506,6 +508,23 @@ Function full_html$ (title As String, body As String)
     h$ = h$ + "</head>" + CRLF
     h$ = h$ + "<body>" + CRLF
     h$ = h$ + "<main>" + CRLF
+    
+    ' Load the header from header.html and add to h$
+    Open "./web/header.html" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+
+    ' Load the nav from nav.html and add to h$
+    Open "./web/nav.html" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+
     h$ = h$ + body + CRLF
     h$ = h$ + "</main>" + CRLF
     h$ = h$ + "<script>" + CRLF
@@ -528,23 +547,6 @@ Function load_page$ (pagename as String)
     title$ = "Jamon Holmgren's Personal Website"
 
     h$ = ""
-
-    ' Load the header from header.html and add to h$
-    Open "./web/header.html" For Input As #1
-    Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
-    Loop
-    Close #1
-
-    ' Load the nav from nav.html and add to h$
-    Open "./web/nav.html" For Input As #1
-    Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
-    Loop
-    Close #1
-
     ' Read the page and return it
     Open "./web/pages/" + pagename + ".html" For Input As #1
     Do While Not EOF(1)
