@@ -16,8 +16,8 @@ PWD=$(pwd)
 cd $ROOT_FOLDER
 
 # If ./qb64/qb64 exists, then we can skip the install step.
-if [ -f $ROOT_FOLDER/qb64 ]; then
-  echo "./qb64/qb64 exists ... skipping install step."
+if [ -d $ROOT_FOLDER/qb64 ]; then
+  echo "./qb64 exists ... skipping install step."
   echo "To force reinstall, delete the ./qb64 folder"
   cd -
   exit 0
