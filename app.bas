@@ -554,6 +554,15 @@ Function full_html$ (title As String, body As String)
 
     h$ = h$ + body + CRLF
     h$ = h$ + "</main>" + CRLF
+
+    ' Load the footer from footer.html and add to h$
+    Open "./web/footer.html" For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+    
     h$ = h$ + "<script>" + CRLF
 
     ' Load the scripts from scripts.js and add to h$

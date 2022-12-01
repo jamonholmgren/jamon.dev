@@ -104,3 +104,13 @@ ul#nav {
   font-weight: 400;
   display: block;
 }
+
+footer {
+  margin-top: 1em;
+}
+
+footer .social-icons {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
