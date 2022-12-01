@@ -1,0 +1,11 @@
+#!/bin/bash
+source "./bin/env.sh"
+
+echo "Rebooting...this can take 20ish seconds"
+ssh $SSH_USER@$DOMAIN "reboot" || true
+
+# Wait for 20 seconds
+sleep 20
+
+# Start the server
+./bin/start

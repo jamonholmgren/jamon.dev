@@ -1,0 +1,29 @@
+# This is a systemd.unit service for watching & keeping the server running.
+# Copy it to /etc/systemd/system/ in your DigitalOcean droplet and it'll keep
+# your server running even when it crashes.
+#
+# Once this file is in that location, run this to restart the daemon:
+#
+# sudo systemctl daemon-reload
+# sudo systemctl enable qb64-watcher.service
+#
+# References:
+# - https://abhinand05.medium.com/run-any-executable-as-systemd-service-in-linux-21298674f66f
+# - https://www.freedesktop.org/software/systemd/man/systemd.syntax.html
+
+[Unit]
+Description=Service that keeps running the qb64_server from startup.
+
+[Install]
+WantedBy=multi-user.target
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/root/qb64_server
+WorkingDirectory=/root
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=%n

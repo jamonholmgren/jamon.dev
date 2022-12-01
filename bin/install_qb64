@@ -1,9 +1,25 @@
 #!/bin/bash
 
+# This installs QB64 on a server. Not intended for local development.
+
+# Get the first argument as the location of the parent of the qb64 folder
+ROOT_FOLDER=$1
+
+# If $! not provided, use the default
+if [ -z "$ROOT_FOLDER" ]; then
+  ROOT_FOLDER=$(pwd)
+fi
+
+# Store pwd so we can return to it later
+PWD=$(pwd)
+
+cd $ROOT_FOLDER
+
 # If ./qb64/qb64 exists, then we can skip the install step.
-if [ -f ./qb64/qb64 ]; then
+if [ -f $ROOT_FOLDER/qb64 ]; then
   echo "./qb64/qb64 exists ... skipping install step."
   echo "To force reinstall, delete the ./qb64 folder"
+  cd -
   exit 0
 fi
 
@@ -13,11 +29,22 @@ curl -L -o ./qb64_lnx.tgz.gz https://github.com/QB64Official/qb64/releases/downl
 # Unzip the file
 tar -xf ./qb64_lnx.tgz.gz
 
+# Remove the zip file
+rm ./qb64_lnx.tgz.gz
+
 # Let's use ./qb64 as the folder name
 mv ./qb64_2022-09-08-23-38-12_47f5044_lnx ./qb64
 
+# We are running as root, so we need to tell the script to ignore the root check
 # In ./qb64/setup_lnx.sh, replace the first instance of "exit 1" with "# exit 1"
 sed -i 's/exit 1/# exit 1/' ./qb64/setup_lnx.sh
 
+# Also remove the "run qb64" step of the script
+sed -i 's/  .\/qb64 &/#  .\/qb64 &/' ./qb64/setup_lnx.sh
+
 # Run the setup script
-./qb64/setup_lnx.sh
+cd ./qb64
+./setup_lnx.sh
+
+# Done, cd back
+cd $PWD

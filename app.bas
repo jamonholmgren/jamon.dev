@@ -1,6 +1,6 @@
 ' QB64 web server found here: https://github.com/smokingwheels/Yacy_front_end/blob/master/yacyfrontend.bas
 ' Retrieved 2022-11-23 by Jamon Holmgren
-' Modified to power http://qb.jamon.dev
+' Modified to power http://qb.jamonholmgren.com
 
 $Console:Only
 
@@ -13,8 +13,9 @@ Const EXPIRY_TIME = 240 'seconds
 Const MIDNIGHT_FIX_WINDOW = 60 * 60 'seconds
 Const MAX_HEADER_SIZE = 4096 'bytes
 
-' Const DEFAULT_HOST = "192.168.1.20" ' for hosting
+' Const DEFAULT_HOST = "147.182.205.32" ' for hosting
 Const DEFAULT_HOST = "localhost" ' for local
+Const DEFAULT_PORT = "80"
 
 ' Different types of web requests
 Const METHOD_HEAD = 1
@@ -43,8 +44,10 @@ Dim client_browser(1 To MAX_CLIENTS) As String
 
 connections = 0
 
+Print "Starting QB64 webserver on port..."
+
 ' kick off the listener
-host = _OpenHost("TCP/IP:8080")
+host = _OpenHost("TCP/IP:" + DEFAULT_PORT)
 
 ' main loop!
 Do
@@ -55,9 +58,12 @@ Do
             If client_handle(c) Then
                 ' work on the request in an effort to finish it
                 If handle_request(c) Then
-                    Print "Completed request for: " + client_uri(c)
-                    Print " from " + _ConnectionAddress(client_handle(c))
-                    Print " using " + client_browser(c)
+                    ' Ignore "captive" pings
+                    If InStr(client_uri(c), "captive") < 1 Then
+                        Print "Completed request for: " + client_uri(c)
+                        Print " from " + _ConnectionAddress(client_handle(c))
+                        Print " using " + client_browser(c)
+                    End If
                     tear_down c
                     ' If the request was completed, we can reduce the number of active connections
                     connections = connections - 1
