@@ -537,7 +537,7 @@ End Function
 
 Function home_page$ ()
     ' Read the home page and return it
-    h$ = "<h1>Jamon's home page</h1>" + CRLF
+    h$ = "<h1>Jamon's home page yay</h1>" + CRLF
     h$ = h$ + "<p>Full page</p>" + CRLF
 
     home_page = full_html$("Jamon Holmgren's website", h$)
