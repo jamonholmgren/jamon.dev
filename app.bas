@@ -361,7 +361,7 @@ Function handle_request% (c As Integer)
                 Case InStr(client_uri(c), "/static/styles.css")
                     html$ = load_static$("styles.css")
                     content_type$ = "text/css"
-                Case InStr(client_uri(c), "/static/script.js")
+                Case InStr(client_uri(c), "/static/scripts.js")
                     html$ = load_static$("scripts.js")
                     content_type$ = "text/javascript"
                 Case InStr(client_uri(c), "/images/")
