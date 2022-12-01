@@ -334,6 +334,21 @@ Function handle_request% (c As Integer)
                     html$ = load_page$("pool-deck")
                 Case InStr(client_uri(c), "/gym")
                     html$ = load_page$("gym")
+                Case InStr(client_uri(c), "/archive/ten")
+                    html$ = load_page$("_archive-ten")
+                Case InStr(client_uri(c), "/archive/next")
+                    html$ = load_page$("_archive-next")
+                Case InStr(client_uri(c), "/ten")
+                    code$ = "301 Moved Permanently" + CRLF + "Location: /archive/ten"
+                    html$ = "Moved to /archive/ten"
+                Case InStr(client_uri(c), "/next")
+                    code$ = "301 Moved Permanently" + CRLF + "Location: /archive/next"
+                    html$ = "Moved to /archive/next"
+                Case InStr(client_uri(c), "/live")
+                    code$ = "301 Moved Permanently" + CRLF + "Location: /archive/live"
+                    html$ = "Moved permanently"
+                Case InStr(client_uri(c), "/archive/live")
+                    html$ = load_page$("_archive-live")
                 Case InStr(client_uri(c), "/favicon.ico")
                     ' html$ = favicon(c)
                     GoTo not_found
