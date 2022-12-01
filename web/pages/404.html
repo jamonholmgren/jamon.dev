@@ -163,7 +163,11 @@ Jamon's Home page 2
 
       if (konamiProgress === konami.length - 1) {
         konamiProgress = -1;
-        alert("You found the Konami code!");
+        // Play audio file https://github.com/jamonholmgren/jamondotbas/raw/main/assets/contra-title.mp3
+        let audio = new Audio(
+          "https://github.com/jamonholmgren/jamondotbas/raw/main/assets/contra-title.mp3"
+        );
+        audio.play();
       }
     } else {
       konamiProgress = -1;
