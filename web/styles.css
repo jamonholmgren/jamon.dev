@@ -52,6 +52,7 @@ ul#nav {
   overflow: hidden;
   line-height: 27px;
   display: flex;
+  flex-wrap: wrap;
 }
 
 #nav li {
