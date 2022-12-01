@@ -72,7 +72,7 @@ Do
                     Print "TIMED OUT: request for: " + client_uri(c)
                     Print " from " + _ConnectionAddress(client_handle(c))
                     Print " using " + client_browser(c)
-                    respond c, "HTTP/1.1 408 Request Timeout", ""
+                    respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
                     tear_down c
                     ' If the request timed out, we can reduce the number of active connections
                     connections = connections - 1
@@ -312,9 +312,10 @@ Function handle_request% (c As Integer)
     'assume the request can be completed; set to 0 if it can't.
     handle_request = 1
     code$ = "200 OK"
+    content_type$ = "text/html"
     Select Case client_method(c)
         Case METHOD_HEAD
-            respond c, "HTTP/1.1 200 OK", ""
+            respond c, "HTTP/1.1 200 OK", "", "text/html"
         Case METHOD_GET
             ' Router!
             Select Case 1
@@ -357,12 +358,12 @@ Function handle_request% (c As Integer)
                 Case InStr(client_uri(c), "/robots.txt")
                     ' html$ = robots_txt()
                     GoTo not_found
-                Case InStr(client_uri(c), "/styles.css")
-                    ' html$ = style()
-                    GoTo unimplemented
-                Case InStr(client_uri(c), "/script.js")
-                    ' html$ = script()
-                    GoTo unimplemented
+                Case InStr(client_uri(c), "/static/styles.css")
+                    html$ = load_static$("styles.css")
+                    content_type$ = "text/css"
+                Case InStr(client_uri(c), "/static/script.js")
+                    html$ = load_static$("scripts.js")
+                    content_type$ = "text/javascript"
                 Case InStr(client_uri(c), "/images/")
                     ' html$ = handle_image(client_uri(c))
                     GoTo unimplemented
@@ -371,7 +372,7 @@ Function handle_request% (c As Integer)
                     code$ = "404 Not Found"
             End Select
 
-            respond c, "HTTP/1.1 " + code$, html$
+            respond c, "HTTP/1.1 " + code$, html$, content_type$
         Case METHOD_POST
             GoTo unimplemented
         Case Else
@@ -387,20 +388,20 @@ Function handle_request% (c As Integer)
     Exit Function
 
     not_found:
-    respond c, "HTTP/1.1 404 Not Found", "404 Not Found"
+    respond c, "HTTP/1.1 404 Not Found", "404 Not Found", "text/html"
     Exit Function
 
     large_request:
-    respond c, "HTTP/1.1 413 Request Entity Too Large", ""
+    respond c, "HTTP/1.1 413 Request Entity Too Large", "", "text/html"
     handle_request = 1
     Exit Function
 
     bad_request:
-    respond c, "HTTP/1.1 400 Bad Request", ""
+    respond c, "HTTP/1.1 400 Bad Request", "", "text/html"
     handle_request = 1
     Exit Function
     unimplemented:
-    respond c, "HTTP/1.1 501 Not Implemented", ""
+    respond c, "HTTP/1.1 501 Not Implemented", "", "text/html"
     handle_request = 1
     Exit Function
 
@@ -409,13 +410,13 @@ Function handle_request% (c As Integer)
     Resume internal_error
     
     internal_error:
-    respond c, "HTTP/1.1 500 Internal Server Error", ""
+    respond c, "HTTP/1.1 500 Internal Server Error", "", "text/html"
     handle_request = 1
     Exit Function
 End Function
 
 ' Actually responds to the request
-Sub respond (c As Integer, header As String, payload As String)
+Sub respond (c As Integer, header As String, payload As String, content_type As String)
     ' Pull in the client_handle first
     Shared client_handle() As Integer
 
@@ -432,7 +433,7 @@ Sub respond (c As Integer, header As String, payload As String)
     
     ' If we have a payload, then the content-type is text/html, UTF-8
     If Len(payload) Then
-        out$ = out$ + "Content-Type: text/html; charset=UTF-8" + CRLF
+        out$ = out$ + "Content-Type: " + content_type + "; charset=UTF-8" + CRLF
         'out$ = out$ + "Transfer-Encoding: chunked" + CRLF
         out$ = out$ + "Content-Length:" + Str$(Len(payload)) + CRLF
     End If
@@ -523,17 +524,6 @@ Function full_html$ (title As String, body As String)
     Loop
     Close #1
 
-    h$ = h$ + "<style>" + CRLF
-
-    ' Load the styles from styles.css and add to h$
-    Open "./web/styles.css" For Input As #1
-    Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
-    Loop
-    Close #1
-
-    h$ = h$ + "</style>" + CRLF
     h$ = h$ + "</head>" + CRLF
     h$ = h$ + "<body>" + CRLF
     h$ = h$ + "<main>" + CRLF
@@ -555,8 +545,8 @@ Function full_html$ (title As String, body As String)
     Close #1
 
     h$ = h$ + body + CRLF
-    h$ = h$ + "</main>" + CRLF
 
+        
     ' Load the footer from footer.html and add to h$
     Open "./web/footer.html" For Input As #1
     Do While Not EOF(1)
@@ -565,17 +555,8 @@ Function full_html$ (title As String, body As String)
     Loop
     Close #1
     
-    h$ = h$ + "<script>" + CRLF
+    h$ = h$ + "</main>" + CRLF
 
-    ' Load the scripts from scripts.js and add to h$
-    Open "./web/scripts.js" For Input As #1
-    Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
-    Loop
-    Close #1
-
-    h$ = h$ + "</script>" + CRLF
     h$ = h$ + "</body>" + CRLF
     h$ = h$ + "</html>" + CRLF
     full_html = h$
