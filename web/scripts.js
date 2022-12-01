@@ -46,3 +46,26 @@ function twitterEmbed(tweetId) {
 document.querySelectorAll(".twitter-embed").forEach((el) => {
   el.innerHTML = twitterEmbed(el.dataset.tweetId);
 });
+
+/**
+ * Given a YouTube ID and title, returns HTML for an embedded video.
+ */
+function youtubeEmbed(youtubeId, title) {
+  return `<div class="resp-container">
+    <iframe
+      width="640"
+      height="360"
+      title="${title}"
+      src="https://www.youtube.com/embed/${youtubeId}"
+      frameborder="0"
+      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen=""
+      class="resp-iframe"
+    ></iframe>
+  </div>`;
+}
+
+// Find all elements with class of "youtube-embed" and replace them with the embedded video.
+document.querySelectorAll(".youtube-embed").forEach((el) => {
+  el.innerHTML = youtubeEmbed(el.dataset.youtubeId, el.innerText);
+});
