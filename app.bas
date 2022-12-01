@@ -352,6 +352,8 @@ Function handle_request% (c As Integer)
                 Case InStr(client_uri(c), "/favicon.ico")
                     ' html$ = favicon(c)
                     GoTo not_found
+                Case InStr(client_uri(c), "/static/path")
+                    html$ = load_static$("path.html")
                 Case InStr(client_uri(c), "/robots.txt")
                     ' html$ = robots_txt()
                     GoTo not_found
@@ -600,4 +602,17 @@ Function load_page$ (pagename as String)
     Close #1
 
     load_page = full_html$(title$, h$)
+End Function
+
+Function load_static$ (filename as String)
+    h$ = ""
+    
+    Open "./web/static/" + filename For Input As #1
+    Do While Not EOF(1)
+        Line Input #1, line$
+        h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+
+    load_static = h$
 End Function
