@@ -4,11 +4,30 @@ body {
   background-color: #ffffff;
   color: #372f2d;
   font-family: "SF Pro Text", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  line-height: 1.5;
 }
 
 main {
   max-width: 950px;
   margin: 0 auto;
+}
+
+main img {
+  display: block;
+  margin: 10px auto;
+  max-width: 100%;
+  height: auto;
+  padding: 5px;
+  background-color: #dadada;
+  border: solid #cacaca 1px;
+}
+main figcaption {
+  display: block;
+  margin: 10px auto;
+  text-align: center;
+  max-width: 500px;
+  font-weight: 200;
+  font-style: italic;
 }
 
 #logo {
