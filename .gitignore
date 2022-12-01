@@ -1,4 +1,5 @@
 qb64
 .DS_Store
 app
-app_start.command
+*.command
+gorilla
