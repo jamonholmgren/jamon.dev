@@ -332,6 +332,8 @@ Function handle_request% (c As Integer)
                     html$ = load_page$("connect")
                 Case InStr(client_uri(c), "/pool-deck")
                     html$ = load_page$("pool-deck")
+                Case InStr(client_uri(c), "/gym")
+                    html$ = load_page$("gym")
                 Case InStr(client_uri(c), "/favicon.ico")
                     ' html$ = favicon(c)
                     GoTo not_found
