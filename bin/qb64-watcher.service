@@ -10,6 +10,7 @@
 # References:
 # - https://abhinand05.medium.com/run-any-executable-as-systemd-service-in-linux-21298674f66f
 # - https://www.freedesktop.org/software/systemd/man/systemd.syntax.html
+# - Evadne for the suggestion
 
 [Unit]
 Description=Service that keeps running the qb64_server from startup.
