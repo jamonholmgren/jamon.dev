@@ -367,7 +367,7 @@ Function handle_request% (c As Integer)
                     content_type$ = "text/javascript"
                 Case InStr(client_uri(c), "/static/snow.js")
                     ' Check if it's wintertime before we load up the snow
-                    If Month(Now) = 12 Or Month(Now) = 1 Or Month(Now) = 2 Then
+                    If is_wintertime = 1 Then
                         html$ = load_static$("snow.js")
                     Else
                         html$ = "// It's not wintertime, so we're not loading up the snow!"
@@ -497,6 +497,22 @@ Function datetime$ ()
     weekday = weekday Mod 7
 
     datetime$ = day(weekday) + ", " + Left$(temp$, 2) + " " + month(m - 1) + " " + Mid$(temp$, 7) + " GMT"
+End Function
+
+' This function returns whether it's wintertime or not ... according to Copilot
+Function is_wintertime ()
+    Static init As Integer
+    Static wintertime As Integer
+    If init = 0 Then
+        init = 1
+        temp$ = Date$ + " " + Time$
+        m = Val(Left$(temp$, 2))
+        wintertime = 0
+        If m < 3 Or m > 11 Then
+            wintertime = 1
+        End If
+    End If
+    is_wintertime = wintertime
 End Function
 
 ' removes extra spaces from a string, I guess?
