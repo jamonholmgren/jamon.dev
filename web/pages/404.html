@@ -2,24 +2,26 @@
 Whoa! This isn't the page you're looking for.
 -->
 
-<h1>You're lost!</h1>
+<h2>You're lost!</h2>
+<article>
+  <p>Um, I'm not sure how you got here, but ... I think you're lost!</p>
 
-<p>Um, I'm not sure how you got here, but ... I think you're lost!</p>
+  <p>
+    You can click a menu item above, or let me know
+    <a href="https://twitter.com/jamonholmgren">on Twitter</a> what URL is
+    broken.
+  </p>
 
-<p>
-  You can click a menu item above, or let me know
-  <a href="https://twitter.com/jamonholmgren">on Twitter</a> what URL is broken.
-</p>
+  <p>Or play a little game, if you want!</p>
 
-<p>Or play a little game, if you want!</p>
-
-<!-- Thanks to @straker! https://gist.github.com/straker/ff00b4b49669ad3dec890306d348adc4 -->
-<canvas
-  width="400"
-  height="400"
-  id="game"
-  style="border: 1px solid gray"
-></canvas>
+  <!-- Thanks to @straker! https://gist.github.com/straker/ff00b4b49669ad3dec890306d348adc4 -->
+  <canvas
+    width="400"
+    height="400"
+    id="game"
+    style="border: 1px solid gray"
+  ></canvas>
+</article>
 <script>
   let canvas = document.getElementById("game");
   let context = canvas.getContext("2d");

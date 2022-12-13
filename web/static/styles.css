@@ -1,9 +1,10 @@
 /* Add your CSS here! It'll be added to the <head> of each page. */
 
 body {
-  background-color: #ffffff;
-  color: #372f2d;
+  background-color: #ecebe8;
+  color: #414140;
   font-family: "SF Pro Text", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  font-size: 18px;
   line-height: 1.5;
 }
 
@@ -31,7 +32,8 @@ main figcaption {
 }
 
 #logo {
-  display: inline-block;
+  display: block;
+  text-align: center;
 }
 
 #logo a {
@@ -39,10 +41,19 @@ main figcaption {
   border-width: 0 0 3px;
   border-color: #dadada;
   border-style: solid;
+  color: #c7433f;
+}
+
+h2 {
+  text-align: center;
 }
 
 a {
-  color: #372f2d;
+  color: #414140;
+}
+
+a:hover {
+  color: #c7433f;
 }
 
 ul#nav {
@@ -66,11 +77,11 @@ ul#nav {
   padding: 8px 10px;
   line-height: 36px;
   font-size: 24px;
+  font-weight: 200;
 }
 
 #nav li a:hover {
   transition: 0.2s;
-  color: firebrick;
   font-weight: bold;
 }
 
@@ -90,9 +101,12 @@ ul#nav {
 .splash-image img {
   width: 100%;
   height: 100%;
-  max-width: 300px;
-  max-height: 300px;
+  max-width: 280px;
+  max-height: 280px;
   object-fit: cover;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 #notice {
@@ -105,6 +119,11 @@ ul#nav {
   display: block;
 }
 
+article {
+  margin: 0 auto;
+  max-width: 680px;
+}
+
 footer {
   margin-top: 1em;
 }
@@ -113,4 +132,49 @@ footer .social-icons {
   align-items: center;
   display: flex;
   justify-content: center;
+}
+
+.opening {
+  color: #c7433f;
+  padding: 5px;
+  font-size: 50px;
+  text-align: center;
+}
+
+.thick-box-text {
+  font-weight: 600;
+  color: white;
+  background-color: #414140;
+  display: inline-block;
+  padding: 0px 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  top: 18px;
+}
+
+.hoverable-image {
+  position: relative;
+}
+
+.hoverable-image img {
+  transition: 1.5s;
+}
+
+.hoverable-image .nohover {
+  opacity: 1;
+}
+
+.hoverable-image .onhover {
+  opacity: 0;
+  position: relative;
+  top: -305px;
+}
+
+.hoverable-image:hover .onhover {
+  opacity: 1;
+}
+
+.hoverable-image:hover .nohover {
+  opacity: 0;
 }
