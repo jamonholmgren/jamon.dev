@@ -44,7 +44,7 @@ Dim client_browser(1 To MAX_CLIENTS) As String
 
 connections = 0
 
-Print "Starting QB64 webserver on port..."
+Print "Starting QB64 webserver on port " + DEFAULT_PORT
 
 ' kick off the listener
 host = _OpenHost("TCP/IP:" + DEFAULT_PORT)
@@ -354,7 +354,8 @@ Function handle_request% (c As Integer)
                     ' html$ = favicon(c)
                     GoTo not_found
                 Case InStr(client_uri(c), "/static/path")
-                    html$ = load_static$("path.html")
+                    ' html$ = load_static$("path.html")
+                    html$ = ""
                 Case InStr(client_uri(c), "/robots.txt")
                     ' html$ = robots_txt()
                     GoTo not_found
@@ -363,6 +364,14 @@ Function handle_request% (c As Integer)
                     content_type$ = "text/css"
                 Case InStr(client_uri(c), "/static/scripts.js")
                     html$ = load_static$("scripts.js")
+                    content_type$ = "text/javascript"
+                Case InStr(client_uri(c), "/static/snow.js")
+                    ' Check if it's wintertime before we load up the snow
+                    If Month(Now) = 12 Or Month(Now) = 1 Or Month(Now) = 2 Then
+                        html$ = load_static$("snow.js")
+                    Else
+                        html$ = "// It's not wintertime, so we're not loading up the snow!"
+                    End If
                     content_type$ = "text/javascript"
                 Case InStr(client_uri(c), "/images/")
                     ' html$ = handle_image(client_uri(c))
@@ -519,8 +528,8 @@ Function full_html$ (title As String, body As String)
     ' extra head tags
     Open "./web/head.html" For Input As #1
     Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
+       Line Input #1, line$
+       h$ = h$ + line$ + CRLF
     Loop
     Close #1
 
@@ -531,16 +540,16 @@ Function full_html$ (title As String, body As String)
     ' Load the header from header.html and add to h$
     Open "./web/header.html" For Input As #1
     Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
+       Line Input #1, line$
+       h$ = h$ + line$ + CRLF
     Loop
     Close #1
 
     ' Load the nav from nav.html and add to h$
     Open "./web/nav.html" For Input As #1
     Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
+       Line Input #1, line$
+       h$ = h$ + line$ + CRLF
     Loop
     Close #1
 
@@ -550,8 +559,8 @@ Function full_html$ (title As String, body As String)
     ' Load the footer from footer.html and add to h$
     Open "./web/footer.html" For Input As #1
     Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
+       Line Input #1, line$
+       h$ = h$ + line$ + CRLF
     Loop
     Close #1
     
@@ -569,16 +578,16 @@ Function load_page$ (pagename as String)
     ' Read the page and return it
     Open "./web/pages/" + pagename + ".html" For Input As #1
     Do While Not EOF(1)
-        Line Input #1, line$
-        
-        if line$ = "<!--TITLE" Then
-            h$ = h$ + line$ + CRLF
-            ' next line is the title! let's store it
-            Line Input #1, line$
-            title$ = line$
-        End If
-
-        h$ = h$ + line$ + CRLF
+       Line Input #1, line$
+       
+       if line$ = "<!--TITLE" Then
+           h$ = h$ + line$ + CRLF
+           ' next line is the title! let's store it
+           Line Input #1, line$
+           title$ = line$
+       End If
+    
+       h$ = h$ + line$ + CRLF
     Loop
     Close #1
 
@@ -590,8 +599,8 @@ Function load_static$ (filename as String)
     
     Open "./web/static/" + filename For Input As #1
     Do While Not EOF(1)
-        Line Input #1, line$
-        h$ = h$ + line$ + CRLF
+       Line Input #1, line$
+       h$ = h$ + line$ + CRLF
     Loop
     Close #1
 
