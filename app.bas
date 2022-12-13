@@ -22,6 +22,10 @@ Const METHOD_HEAD = 1
 Const METHOD_GET = 2
 Const METHOD_POST = 3
 
+' When did the server start?
+Dim Shared StartTime As String
+StartTime = datetime
+
 ' convenience consts
 Dim Shared CRLF As String
 Dim Shared QT As String
@@ -44,7 +48,7 @@ Dim client_browser(1 To MAX_CLIENTS) As String
 
 connections = 0
 
-Print "Starting QB64 webserver on port..."
+Print "Starting QB64 webserver on port " + DEFAULT_PORT + "..."
 
 ' kick off the listener
 host = _OpenHost("TCP/IP:" + DEFAULT_PORT)
@@ -364,6 +368,14 @@ Function handle_request% (c As Integer)
                 Case InStr(client_uri(c), "/static/scripts.js")
                     html$ = load_static$("scripts.js")
                     content_type$ = "text/javascript"
+                Case InStr(client_uri(c), "/static/snow.js")
+                    ' Check if it's wintertime before we load up the snow
+                    If Month(Now) = 12 Or Month(Now) = 1 Or Month(Now) = 2 Then
+                        html$ = load_static$("snow.js")
+                    Else
+                        html$ = "// It's not wintertime, so we're not loading up the snow!"
+                    End If
+                    content_type$ = "text/javascript"
                 Case InStr(client_uri(c), "/images/")
                     ' html$ = handle_image(client_uri(c))
                     GoTo unimplemented
@@ -425,7 +437,7 @@ Sub respond (c As Integer, header As String, payload As String, content_type As 
 
     out$ = out$ + "Date: " + datetime + CRLF
     out$ = out$ + "Server: QweB64" + CRLF
-    out$ = out$ + "Last-Modified: " + datetime + CRLF
+    out$ = out$ + "Last-Modified: " + StartTime + CRLF
     out$ = out$ + "Connection: close" + CRLF
     ' Not sure why these are commented out, but they are in the original code
     ' out$ = out$ + "Keep-Alive: timeout=15, max=99" + CRLF
