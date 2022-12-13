@@ -22,6 +22,10 @@ Const METHOD_HEAD = 1
 Const METHOD_GET = 2
 Const METHOD_POST = 3
 
+' When did the server start?
+Dim Shared StartTime As String
+StartTime = datetime
+
 ' convenience consts
 Dim Shared CRLF As String
 Dim Shared QT As String
@@ -434,7 +438,7 @@ Sub respond (c As Integer, header As String, payload As String, content_type As 
 
     out$ = out$ + "Date: " + datetime + CRLF
     out$ = out$ + "Server: QweB64" + CRLF
-    out$ = out$ + "Last-Modified: " + datetime + CRLF
+    out$ = out$ + "Last-Modified: " + StartTime + CRLF
     out$ = out$ + "Connection: close" + CRLF
     ' Not sure why these are commented out, but they are in the original code
     ' out$ = out$ + "Keep-Alive: timeout=15, max=99" + CRLF
