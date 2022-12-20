@@ -539,6 +539,27 @@ Function shrinkspace$ (str1 As String)
     shrinkspace = str1
 End Function
 
+' replaces various template variables with their values
+Function replace$ (str1 As String, template_var As String, template_value As String)
+    Do
+        i = InStr(str1, template_var)
+        If i = 0 Then Exit Do
+        str1 = Left$(str1, i - 1) + template_value + Mid$(str1, i + Len(template_var))
+    Loop
+    replace = str1
+End Function
+
+' Replaces all template variables with their values
+Function process_template$ (template_str As String)
+    ' template_str = replace(template_str, "${date}", datetime$)
+    template_str = replace(template_str, "${year}", Mid$(datetime$, 13, 4))
+    
+    ' add other template strings here
+    ' template_str = replace(template_str, "${date}", datetime$)
+
+    process_template = template_str
+End Function
+
 Function full_html$ (title As String, body As String)
     h$ = "<!DOCTYPE html>" + CRLF
     h$ = h$ + "<html>" + CRLF
@@ -549,7 +570,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/head.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + line$ + CRLF
+       h$ = h$ + process_template(line$) + CRLF
     Loop
     Close #1
 
@@ -561,7 +582,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/header.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + line$ + CRLF
+       h$ = h$ + process_template(line$) + CRLF
     Loop
     Close #1
 
@@ -569,7 +590,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/nav.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + line$ + CRLF
+       h$ = h$ + process_template(line$) + CRLF
     Loop
     Close #1
 
@@ -580,7 +601,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/footer.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + line$ + CRLF
+       h$ = h$ + process_template(line$) + CRLF
     Loop
     Close #1
     
@@ -607,7 +628,7 @@ Function load_page$ (pagename as String)
            title$ = line$
        End If
     
-       h$ = h$ + line$ + CRLF
+       h$ = h$ + process_template(line$) + CRLF
     Loop
     Close #1
 
