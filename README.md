@@ -1,6 +1,8 @@
 # Jamon.dev -- QB64 website
 
-This website is built in [QB64](https://qb64.com/), which is a slightly more modern version of the venerable old QBasic I used to do. Yes, it's weird! But ... it works.
+This website is built in [QB64](https://qb64.com/), which is a slightly more modern version of the venerable old QBasic I used to do. Yes, it's weird! But ... it works!
+
+![jamon's website](https://user-images.githubusercontent.com/1479215/209062753-489cd645-a92e-4500-8f28-f048deac7736.png)
 
 ## The Code
 
