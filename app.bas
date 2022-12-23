@@ -539,6 +539,18 @@ Function shrinkspace$ (str1 As String)
     shrinkspace = str1
 End Function
 
+' slugifies a url path string, assuming no foreign characters
+Function slugify$ (str1 As string)
+    str1 = LCase$(str1)
+    str1 = replace$(str1, " ", "-")
+    str1 = replace$(str1, "/", "-")
+    str1 = replace$(str1, "\", "-")
+    str1 = replace$(str1, ":", "-")
+    str1 = replace$(str1, "*", "-")
+    str1 = replace$(str1, "?", "-")
+    slugify = str1
+End Function
+
 ' replaces various template variables with their values
 Function replace$ (str1 As String, template_var As String, template_value As String)
     Do
@@ -550,9 +562,10 @@ Function replace$ (str1 As String, template_var As String, template_value As Str
 End Function
 
 ' Replaces all template variables with their values
-Function process_template$ (template_str As String)
+Function process_template$ (template_str As String, pagename As String)
     ' template_str = replace(template_str, "${date}", datetime$)
     template_str = replace(template_str, "${year}", Mid$(datetime$, 13, 4))
+    template_str = replace(template_str, "${slug}", slugify(pagename))
     
     ' add other template strings here
     ' template_str = replace(template_str, "${date}", datetime$)
@@ -560,7 +573,7 @@ Function process_template$ (template_str As String)
     process_template = template_str
 End Function
 
-Function full_html$ (title As String, body As String)
+Function full_html$ (title As String, body As String, pagename As String)
     h$ = "<!DOCTYPE html>" + CRLF
     h$ = h$ + "<html>" + CRLF
     h$ = h$ + "<head>" + CRLF
@@ -570,7 +583,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/head.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + process_template(line$) + CRLF
+       h$ = h$ + process_template(line$, pagename) + CRLF
     Loop
     Close #1
 
@@ -582,7 +595,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/header.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + process_template(line$) + CRLF
+       h$ = h$ + process_template(line$, pagename) + CRLF
     Loop
     Close #1
 
@@ -590,7 +603,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/nav.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + process_template(line$) + CRLF
+       h$ = h$ + process_template(line$, pagename) + CRLF
     Loop
     Close #1
 
@@ -601,7 +614,7 @@ Function full_html$ (title As String, body As String)
     Open "./web/footer.html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       h$ = h$ + process_template(line$) + CRLF
+       h$ = h$ + process_template(line$, pagename) + CRLF
     Loop
     Close #1
     
@@ -628,11 +641,11 @@ Function load_page$ (pagename as String)
            title$ = line$
        End If
     
-       h$ = h$ + process_template(line$) + CRLF
+       h$ = h$ + process_template(line$, pagename) + CRLF
     Loop
     Close #1
 
-    load_page = full_html$(title$, h$)
+    load_page = full_html$(title$, h$, pagename)
 End Function
 
 Function load_static$ (filename as String)
