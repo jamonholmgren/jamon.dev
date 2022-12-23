@@ -7,4 +7,8 @@ then
     exit 1
 fi
 
+# Kill any running instances of app
+killall app
+
+# Compile and run app
 qb64 -x ./app.bas && ./app
