@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# checks if qb64 is in the path and errors if not
+if ! command -v qb64 &> /dev/null
+then
+    echo "qb64 could not be found. Please install qb64 and add it to your path."
+    exit 1
+fi
+
+qb64 -x ./app.bas && ./app
