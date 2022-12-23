@@ -126,12 +126,18 @@ article {
 
 footer {
   margin-top: 1em;
+  text-align: center;
 }
 
 footer .social-icons {
   align-items: center;
   display: flex;
   justify-content: center;
+}
+
+footer .counter {
+  font-size: 11px;
+  font-style: italic;
 }
 
 .opening {
