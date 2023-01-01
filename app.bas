@@ -1,6 +1,5 @@
-' QB64 web server found here: https://github.com/smokingwheels/Yacy_front_end/blob/master/yacyfrontend.bas
-' Retrieved 2022-11-23 by Jamon Holmgren
-' Modified to power http://qb.jamonholmgren.com
+' QB64 web server inspired by the one found here: https://github.com/smokingwheels/Yacy_front_end/blob/master/yacyfrontend.bas
+' Modified to power https://jamon.dev
 
 $Console:Only
 
