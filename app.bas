@@ -521,7 +521,8 @@ Function is_wintertime ()
         temp$ = Date$ + " " + Time$
         m = Val(Left$(temp$, 2))
         wintertime = 0
-        If m < 3 Or m > 11 Then
+        ' December and January only
+        If m = 12 Or m = 1 Then
             wintertime = 1
         End If
     End If
