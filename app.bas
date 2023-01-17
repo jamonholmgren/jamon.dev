@@ -322,6 +322,10 @@ Function handle_request% (c As Integer)
         Case METHOD_GET
             ' Router!
             Select Case 1
+                Case InStr(client_host(c), "jamonholmgren.com")
+                    'redirect to the same page on jamon.dev
+                    code$ = "301 Moved Permanently" + CRLF + "Location: https://jamon.dev" + client_uri(c)
+                    html$ = "Moved to https://jamon.dev" + client_uri(c)
                 Case Len(client_uri(c)) ' hack .. length of 1 is probably just "/" so we capture home page
                     html$ = load_page$("home")
                 Case InStr(client_uri(c), "/beginnings")
