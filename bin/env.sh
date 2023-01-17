@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Constants -- change these to match your setup
-DOMAIN="jamon.dev"
+DOMAIN="qb.jamonholmgren.com"
 # The below are probably accurate if you have a default Ubuntu DigitalOcean droplet.
 # If you edit them, also update any references in qb64-watcher.service!
 SSH_USER="root"
