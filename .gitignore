@@ -3,3 +3,4 @@ qb64
 app
 *.command
 gorilla
+.vscode

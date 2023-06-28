@@ -375,6 +375,8 @@ Function handle_request% (c As Integer)
                     html$ = load_static$("tank.js")
                 Case InStr(client_uri(c), "/static/tanks")
                     html$ = load_static$("tanks.html")
+                Case InStr(client_uri(c), "/static/notes")
+                    html$ = load_static$("notes.html")
                 Case InStr(client_uri(c), "/robots.txt")
                     ' html$ = robots_txt()
                     GoTo not_found
