@@ -4,3 +4,4 @@ app
 *.command
 gorilla
 .vscode
+.config/flame/flame-history.json
