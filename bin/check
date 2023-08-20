@@ -1,7 +1,7 @@
 #!/bin/bash
 
 URL="https://jamon.dev"
-STATUS_CODE=$(curl --write-out '%{http_code}' --silent --output /dev/null $URL)
+STATUS_CODE=$(curl --max-time 10 --write-out '%{http_code}' --silent --output /dev/null $URL)
 
 if [[ $STATUS_CODE -ne 200 ]]; then
   echo "the website is down! status code: $STATUS_CODE"

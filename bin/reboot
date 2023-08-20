@@ -8,4 +8,4 @@ ssh $SSH_USER@$DOMAIN "reboot" || true
 sleep 20
 
 # Start the server
-./bin/start
+./bin/restart
