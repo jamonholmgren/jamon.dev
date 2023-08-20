@@ -4,8 +4,9 @@ URL="https://jamon.dev"
 STATUS_CODE=$(curl --write-out '%{http_code}' --silent --output /dev/null $URL)
 
 if [[ $STATUS_CODE -ne 200 ]]; then
-  # pkill qb64_server
   echo "the website is down! status code: $STATUS_CODE"
+  echo "restarting server..."
+  pkill qb64_server
 else
   echo "the website is up! status code: $STATUS_CODE"
 fi
