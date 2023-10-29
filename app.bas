@@ -458,7 +458,7 @@ Sub respond (c As Integer, header As String, payload As String, content_type As 
     out$ = out$ + "Last-Modified: " + StartTime + CRLF
     ' 604800 seconds = 1 week
     ' 86400 seconds = 1 day
-    out$ = out$ + "Cache-Control: max-age=86400" + CRLF
+    out$ = out$ + "Cache-Control: public, max-age=86400, s-maxage=86400" + CRLF
     out$ = out$ + "Connection: close" + CRLF
     ' Not sure why these are commented out, but they are in the original code
     ' out$ = out$ + "Keep-Alive: timeout=15, max=99" + CRLF
