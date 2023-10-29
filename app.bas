@@ -381,22 +381,25 @@ Function handle_request% (c As Integer)
                     ' html$ = robots_txt()
                     GoTo not_found
                 Case InStr(client_uri(c), "/static/styles.css")
-                    html$ = load_static$("styles.css")
-                    content_type$ = "text/css"
+                    respond_static c, "HTTP/1.1 200 OK", "styles.css", "text/css"
+                    Exit Function
                 Case InStr(client_uri(c), "/static/scripts.js")
-                    html$ = load_static$("scripts.js")
-                    content_type$ = "text/javascript"
+                    ' stream static file
+                    respond_static c, "HTTP/1.1 200 OK", "scripts.html", "text/javascript"
+                    Exit Function
                 Case InStr(client_uri(c), "/static/snow.js")
                     ' Check if it's wintertime before we load up the snow
                     If is_wintertime = 1 Then
-                        html$ = load_static$("snow.js")
+                        respond_static c, "HTTP/1.1 200 OK", "snow.js", "text/css"
+                        Exit Function
                     Else
                         html$ = "// It's not wintertime, so we're not loading up the snow!"
                     End If
                     content_type$ = "text/javascript"
-                Case InStr(client_uri(c), "/images/")
-                    ' html$ = handle_image(client_uri(c))
-                    GoTo unimplemented
+                Case InStr(client_uri(c), "/static/jamon-face.jpg")
+                    respond_static c, "HTTP/1.1 200 OK", "jamon-face.jpg", "image/jpeg"
+                    Exit Function
+                    ' GoTo unimplemented
                 Case Else
                     html$ = load_page$("404")
                     code$ = "404 Not Found"
@@ -482,6 +485,37 @@ Sub respond (c As Integer, header As String, payload As String, content_type As 
 
     ' Done!
 End Sub
+
+
+Sub respond_static (c As Integer, header As String, filename as String, content_type As String)
+    Shared client_handle() As Integer
+
+    out$ = header + CRLF
+    out$ = out$ + "Date: " + datetime + CRLF
+    out$ = out$ + "Server: QweB64" + CRLF
+    out$ = out$ + "Last-Modified: " + StartTime + CRLF
+    ' 604800 seconds = 1 week
+    ' 86400 seconds = 1 day
+    out$ = out$ + "Cache-Control: public, max-age=86400, s-maxage=86400" + CRLF
+    out$ = out$ + "Connection: close" + CRLF
+    out$ = out$ + "Content-Type: " + content_type + "; charset=UTF-8" + CRLF
+    out$ = out$ + CRLF
+
+    ' output headers first
+    Put #client_handle(c), , out$
+
+    ' Read the file and write it to the handle
+    Open "./web/static/" + filename For Input As #1
+    Do While Not EOF(1)
+       Line Input #1, line$
+       out$ = line$ + CRLF
+       Put #client_handle(c), , out$
+    Loop
+    Close #1
+
+    ' Done!
+End Sub
+
 
 ' This returns a string of the current date and time in the format required by HTTP
 Function datetime$ ()

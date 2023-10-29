@@ -11,9 +11,9 @@ You can find all of the QB64 code in `./app.bas` along with pages in `./web/page
 
 It includes a small hard-coded router that handles subpages like `http://localhost:8080/subpage`. Check out the `handle_request` function. I may make this dynamic in the future.
 
-## Building
+## Building Locally
 
-Install a version of QB64 and open the `app.bas` file. You can then create an executable from there, or run it directly.
+Install a version of QB64 [from the website](https://qb64.com/) (_not_ the ./bin/install_qb64 script -- that's only for the remote server) and open the `app.bas` file. You can then create an executable from there, or run it directly.
 
 Once it's running (you'll see a terminal pop up with a blank black screen), go to `http://localhost`. The website will pop up and you'll see something like:
 
@@ -25,6 +25,13 @@ Completed request for: /
 ```
 
 ...show up in the terminal.
+
+You can also run `./bin/build` to build the executable and then run it.
+
+```bash
+./bin/build
+./bin/run
+```
 
 ## Hosting
 
