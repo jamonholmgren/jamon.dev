@@ -34,3 +34,6 @@ ssh $SSH_USER@$DOMAIN "cp $REMOTE_REPO_FOLDER/bin/qb64-watcher.service /etc/syst
 
 echo "Restarting the server"
 ./bin/restart
+
+echo "Purging the cache"
+./bin/purge

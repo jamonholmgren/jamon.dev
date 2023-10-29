@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# ping https://purge-jamon-dev-cache.jamonholmgren.workers.dev/purge-cache to purge the cache
+curl -X GET "https://purge-jamon-dev-cache.jamonholmgren.workers.dev/purge-cache"

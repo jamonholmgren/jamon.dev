@@ -5,7 +5,6 @@ This website is built in [QB64](https://qb64.com/), which is a slightly more mod
 <img src="https://user-images.githubusercontent.com/1479215/209062980-5706a963-b880-4702-a1db-3195dff4c297.png" width="500" style="margin: 0 auto;" />
 </center>
 
-
 ## The Code
 
 You can find all of the QB64 code in `./app.bas` along with pages in `./web/pages/*.html`, CSS and JS in `./web/static/*`, and common partial sections in `./web/*`.
@@ -47,3 +46,8 @@ I spent several days trying to figure out how to host this, and finally got it w
 14. When you're ready to deploy, edit the `./bin/env.sh` script to have your server's info, and then run `./bin/deploy`
 15. If you need to restart the QB server on DigitalOcean, use `./bin/restart` or `./bin/reboot` for a full reboot of the droplet
 16. To watch server logs, go into an SSH session on your droplet and then run `tail -f /var/log/syslog`
+
+## Gotchas
+
+- If you're using a .dev domain like I am, you MUST use SSH. So how I handled this was I hosted the domain on DigitalOcean, and then used CloudFlare as a proxy in front of it. This way, I can use CloudFlare's free SSL certificate to enable HTTPS.
+- There seems to be memory limits. I wasn't able to stream large HTML / CSS / JS files. I haven't figured out what those memory limits are, yet, but I'll update here when I do.
