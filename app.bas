@@ -526,8 +526,6 @@ End Sub
 Sub respond_binary (c As Integer, header As String, filename as String, content_type As String)
     Shared client_handle() As Integer
 
-    Dim buffer As String
-
     out$ = header + CRLF
     out$ = out$ + "Date: " + datetime + CRLF
     out$ = out$ + "Server: QweB64" + CRLF
@@ -547,11 +545,29 @@ Sub respond_binary (c As Integer, header As String, filename as String, content_
     Open "./web/static/" + filename For Binary As #1
     ON ERROR GOTO 0
 
-    Do While Not EOF(1)
-        buffer = Space$(LOF(1))  ' Allocate a buffer the size of the file
-        Get #1, , buffer  ' Read the entire file into the buffer
-        Put #client_handle(c), , buffer  ' Send the buffer to the client
-    Loop
+    ' Define a buffer size, e.g., 1 KB chunks
+    Const bufferSize = 1024
+    Dim buffer As String * bufferSize
+
+    Dim fileLength As Long
+    fileLength = LOF(1) ' Length of file
+
+    While fileLength > 0
+        ' Determine the size of the next chunk to read
+        If fileLength < bufferSize Then
+            ' Resize buffer for the last piece of the file
+            buffer = Space$(fileLength)
+        End If
+        
+        ' Read a chunk of the file
+        Get #1, , buffer
+        
+        ' Send the chunk to the client
+        Put #client_handle(c), , buffer  ' Send the entire buffer
+        
+        ' Reduce the remaining file length by the size of the chunk just read
+        fileLength = fileLength - Len(buffer)
+    Wend
 
     Close #1
 
