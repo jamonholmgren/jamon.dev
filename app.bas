@@ -118,6 +118,11 @@ Loop Until InKey$ = Chr$(27) ' escape quits
 Close #host
 System ' Quits to system
 
+
+StaticFileError:
+    Print "File error: " + Error$
+    Resume Next
+
 ' This tears down a connection, empties memory, and resets the client handle to 0
 Sub tear_down (c As Integer)
     ' Import the shared arrays
@@ -320,6 +325,8 @@ Function handle_request% (c As Integer)
         Case METHOD_HEAD
             respond c, "HTTP/1.1 200 OK", "", "text/html"
         Case METHOD_GET
+            uri$ = client_uri(c)
+
             ' Router!
             Select Case 1
                 Case InStr(client_host(c), "jamonholmgren.com")
@@ -332,26 +339,13 @@ Function handle_request% (c As Integer)
                     html$ = "Moved to https://jamon.dev" + client_uri(c)
                 Case Len(client_uri(c)) ' hack .. length of 1 is probably just "/" so we capture home page
                     html$ = load_page$("home")
-                Case InStr(client_uri(c), "/beginnings")
-                    html$ = load_page$("beginnings")
-                Case InStr(client_uri(c), "/now")
-                    html$ = load_page$("now")
-                Case InStr(client_uri(c), "/tech")
-                    html$ = load_page$("tech")
-                Case InStr(client_uri(c), "/talks")
-                    html$ = load_page$("talks")
-                Case InStr(client_uri(c), "/connect")
-                    html$ = load_page$("connect")
-                Case InStr(client_uri(c), "/pool-deck")
-                    html$ = load_page$("pool-deck")
-                Case InStr(client_uri(c), "/gym")
-                    html$ = load_page$("gym")
-                Case InStr(client_uri(c), "/uses")
-                    html$ = load_page$("uses")
+                Case PageExists(uri$)
+                    ' route any pages in the pages folder
+                    html$ = load_page$(uri$)
                 Case InStr(client_uri(c), "/archive/ten")
-                    html$ = load_page$("_archive-ten")
+                    html$ = load_page$("/_archive-ten")
                 Case InStr(client_uri(c), "/archive/next")
-                    html$ = load_page$("_archive-next")
+                    html$ = load_page$("/_archive-next")
                 Case InStr(client_uri(c), "/ten")
                     code$ = "301 Moved Permanently" + CRLF + "Location: /archive/ten"
                     html$ = "Moved to /archive/ten"
@@ -362,21 +356,19 @@ Function handle_request% (c As Integer)
                     code$ = "301 Moved Permanently" + CRLF + "Location: /archive/live"
                     html$ = "Moved permanently"
                 Case InStr(client_uri(c), "/archive/live")
-                    html$ = load_page$("_archive-live")
+                    html$ = load_page$("/_archive-live")
                 Case InStr(client_uri(c), "/favicon.ico")
                     ' html$ = favicon(c)
                     GoTo not_found
                 Case InStr(client_uri(c), "/static/path")
-                    ' html$ = load_static$("path.html")
-                    html$ = ""
-                Case InStr(client_uri(c), "/static/tank.css")
-                    html$ = load_static$("tank.css")
-                Case InStr(client_uri(c), "/static/tank.js")
-                    html$ = load_static$("tank.js")
+                    html$ = load_static$("/static/path.html")
+                ' Case InStr(client_uri(c), "/static/tank.css")
                 Case InStr(client_uri(c), "/static/tanks")
-                    html$ = load_static$("tanks.html")
+                    html$ = load_static$("/static/tanks.html")
                 Case InStr(client_uri(c), "/static/notes")
-                    html$ = load_static$("notes.html")
+                    html$ = load_static$("/static/notes.html")
+                Case StaticExists(filename$)
+                    html$ = load_static$(filename$)
                 Case InStr(client_uri(c), "/robots.txt")
                     ' html$ = robots_txt()
                     GoTo not_found
@@ -385,7 +377,7 @@ Function handle_request% (c As Integer)
                     Exit Function
                 Case InStr(client_uri(c), "/static/scripts.js")
                     ' stream static file
-                    respond_static c, "HTTP/1.1 200 OK", "scripts.html", "text/javascript"
+                    respond_static c, "HTTP/1.1 200 OK", "scripts.js", "text/javascript"
                     Exit Function
                 Case InStr(client_uri(c), "/static/snow.js")
                     ' Check if it's wintertime before we load up the snow
@@ -396,12 +388,13 @@ Function handle_request% (c As Integer)
                         html$ = "// It's not wintertime, so we're not loading up the snow!"
                     End If
                     content_type$ = "text/javascript"
-                Case InStr(client_uri(c), "/static/jamon-face.jpg")
-                    respond_static c, "HTTP/1.1 200 OK", "jamon-face.jpg", "image/jpeg"
+                Case InStr(client_uri(c), "/static/") AND InStr(client_uri(c), ".jpg")
+                    image_name$ = Mid$(client_uri(c), InStr(client_uri(c), "/static/") + 8)
+                    Print "Loading image: " + image_name$
+                    respond_binary c, "HTTP/1.1 200 OK", image_name$, "image/jpeg"
                     Exit Function
-                    ' GoTo unimplemented
                 Case Else
-                    html$ = load_page$("404")
+                    html$ = load_page$("/404")
                     code$ = "404 Not Found"
             End Select
 
@@ -448,6 +441,14 @@ Function handle_request% (c As Integer)
     Exit Function
 End Function
 
+Function PageExists(filename$)
+    PageExists = _FILEEXISTS("./web/pages" + filename$ + ".html") * -1
+End Function
+
+Function StaticExists(filename$)
+    StaticExists = _FILEEXISTS("./web/static" + filename$) * -1
+End Function
+
 ' Actually responds to the request
 Sub respond (c As Integer, header As String, payload As String, content_type As String)
     ' Pull in the client_handle first
@@ -486,9 +487,11 @@ Sub respond (c As Integer, header As String, payload As String, content_type As 
     ' Done!
 End Sub
 
-
+' static text files
 Sub respond_static (c As Integer, header As String, filename as String, content_type As String)
     Shared client_handle() As Integer
+
+    Print "Serving static file: " + filename
 
     out$ = header + CRLF
     out$ = out$ + "Date: " + datetime + CRLF
@@ -505,17 +508,55 @@ Sub respond_static (c As Integer, header As String, filename as String, content_
     Put #client_handle(c), , out$
 
     ' Read the file and write it to the handle
+    ON ERROR GOTO StaticFileError
     Open "./web/static/" + filename For Input As #1
+    ON ERROR GOTO 0
+
     Do While Not EOF(1)
        Line Input #1, line$
        out$ = line$ + CRLF
        Put #client_handle(c), , out$
     Loop
+
     Close #1
 
     ' Done!
 End Sub
 
+Sub respond_binary (c As Integer, header As String, filename as String, content_type As String)
+    Shared client_handle() As Integer
+
+    Dim buffer As String
+
+    out$ = header + CRLF
+    out$ = out$ + "Date: " + datetime + CRLF
+    out$ = out$ + "Server: QweB64" + CRLF
+    out$ = out$ + "Last-Modified: " + StartTime + CRLF
+    ' 604800 seconds = 1 week
+    ' 86400 seconds = 1 day
+    out$ = out$ + "Cache-Control: public, max-age=86400, s-maxage=86400" + CRLF
+    out$ = out$ + "Connection: close" + CRLF
+    out$ = out$ + "Content-Type: " + content_type + "; charset=UTF-8" + CRLF
+    out$ = out$ + CRLF
+
+    ' output headers first
+    Put #client_handle(c), , out$
+
+    ' Read the file and write it to the handle
+    ON ERROR GOTO StaticFileError
+    Open "./web/static/" + filename For Binary As #1
+    ON ERROR GOTO 0
+
+    Do While Not EOF(1)
+        buffer = Space$(LOF(1))  ' Allocate a buffer the size of the file
+        Get #1, , buffer  ' Read the entire file into the buffer
+        Put #client_handle(c), , buffer  ' Send the buffer to the client
+    Loop
+
+    Close #1
+
+    ' Done!
+End Sub
 
 ' This returns a string of the current date and time in the format required by HTTP
 Function datetime$ ()
@@ -683,6 +724,11 @@ End Function
 Function load_page$ (pagename as String)
     title$ = "Jamon Holmgren's Personal Website"
 
+    ' check if pagename starts with a slash and remove it
+    If Left$(pagename, 1) = "/" Then
+        pagename = Mid$(pagename, 2)
+    End If
+
     h$ = ""
     ' Read the page and return it
     Open "./web/pages/" + pagename + ".html" For Input As #1
@@ -706,7 +752,7 @@ End Function
 Function load_static$ (filename as String)
     h$ = ""
     
-    Open "./web/static/" + filename For Input As #1
+    Open "." + filename For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
        h$ = h$ + line$ + CRLF
