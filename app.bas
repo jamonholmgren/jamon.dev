@@ -768,7 +768,7 @@ End Function
 Function load_static$ (filename as String)
     h$ = ""
     
-    Open "." + filename For Input As #1
+    Open "./web" + filename For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
        h$ = h$ + line$ + CRLF
