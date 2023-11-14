@@ -53,8 +53,7 @@ document.querySelectorAll(".twitter-embed").forEach((el) => {
 function youtubeEmbed(youtubeId, title) {
   return `<div class="resp-container">
     <iframe
-      width="640"
-      height="360"
+      style="width:100%;height:100%;"
       title="${title}"
       src="https://www.youtube.com/embed/${youtubeId}"
       frameborder="0"
