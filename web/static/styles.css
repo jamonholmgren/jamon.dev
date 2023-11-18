@@ -200,10 +200,15 @@ footer .counter {
   text-decoration: none;
   margin-top: 0;
   margin-bottom: 0;
+
+  transition: transform 0.3s ease;
+  will-change: transform;
 }
 
-.youtube-videos a:hover {
-  text-decoration: none;
+.youtube-videos a:hover img.thumb {
+  transform: scale(1.03); /* Slightly scale up the thumbnail */
+  transition: transform 0.3s ease;
+  will-change: transform;
 }
 
 .youtube-videos img.thumb {
