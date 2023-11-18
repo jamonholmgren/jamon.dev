@@ -184,3 +184,49 @@ footer .counter {
 .hoverable-image:hover .nohover {
   opacity: 0;
 }
+
+/* These are YouTube-style thumbnails and titles/descriptions. */
+.youtube-videos {
+  font-family: Helvetica, Arial, sans-serif;
+  display: flex;
+  gap: 20px;
+}
+
+.youtube-videos a {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  color: black;
+  text-decoration: none;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.youtube-videos a:hover {
+  text-decoration: none;
+}
+
+.youtube-videos img.thumb {
+  flex-shrink: 0;
+  object-fit: cover;
+  margin-right: 10px;
+  padding: 0;
+}
+
+.youtube-videos .text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.youtube-videos h4 {
+  font-size: 14px;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.youtube-videos span {
+  color: grey;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
