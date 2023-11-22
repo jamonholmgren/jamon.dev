@@ -714,7 +714,7 @@ Function load_blog$ (uri$)
     
     ' add links to all the other years
     h$ = "<div class='blog-years'>" + CRLF
-    For i = Val(current_year$) To 2022 Step -1
+    For i = Val(current_year$) To 2023 Step -1
         ' convert to string and strip spaces
         y$ = LTrim$(Str$(i))
 
