@@ -342,6 +342,8 @@ Function handle_request% (c As Integer)
                 Case PageExists(uri$)
                     ' route any pages in the pages folder
                     html$ = load_page$(uri$)
+                Case InStr(client_uri(c), "/blog")
+                    html$ = load_blog$(uri$)
                 Case InStr(client_uri(c), "/archive/ten")
                     html$ = load_page$("/_archive-ten")
                 Case InStr(client_uri(c), "/archive/next")
@@ -683,6 +685,70 @@ Function process_template$ (template_str As String, pagename As String)
     ' template_str = replace(template_str, "${date}", datetime$)
 
     process_template = template_str
+End Function
+
+' Loads a blog post from the blog folder, which are just years (2023.html) etc, starting in 2023.
+' If the file doesn't exist, it returns a 404 page.
+' Adds links to all the other years at the end of the page, if they exist.
+' Defaults to the current year if no year is specified.
+Function load_blog$ (uri$)
+    current_year$ = Mid$(datetime$, 13, 4)
+
+    ' check if uri starts with a slash and remove it
+    If Left$(uri$, 1) = "/" Then
+        uri$ = Mid$(uri$, 2)
+    End If
+
+    ' check if uri ends with a slash and remove it
+    If Right$(uri$, 1) = "/" Then
+        uri$ = Left$(uri$, Len(uri$) - 1)
+    End If
+
+    ' get a year if it exists after blog, like `blog/****`
+    year$ = Mid$(uri$, 6, 4)
+
+    ' if no year is specified, use the current year
+    If Len(year$) = 0 Then
+        year$ = current_year$
+    End If
+    
+    ' add links to all the other years
+    h$ = "<div class='blog-years'>" + CRLF
+    For i = Val(current_year$) To 2022 Step -1
+        ' convert to string and strip spaces
+        y$ = LTrim$(Str$(i))
+
+        If _FILEEXISTS("./web/blog/" + y$ + ".html") Then
+            If y$ = year$ Then
+                ' If current year, bold it
+                h$ = h$ + "<a href='/blog/" + y$ + "'><strong>" + y$ + "</strong></a>" + CRLF
+            Else
+                h$ = h$ + "<a href='/blog/" + y$ + "'>" + y$ + "</a>" + CRLF
+            End If
+        Else
+            h$ = h$ + "<span>" + "./web/blog/" + y$ + ".html" + "</span>" + CRLF
+        End If
+    Next
+    h$ = h$ + "</div>" + CRLF
+
+    ' check if the year exists in `./web/blog/yyyy.html`
+    If _FILEEXISTS("./web/blog/" + year$ + ".html") = 0 Then
+        ' if not, return a 404 page
+        load_blog = load_page$("/404")
+        Exit Function
+    End If
+
+    ' load the blog post
+    Open "./web/blog/" + year$ + ".html" For Input As #1
+    bold = 0
+    italic = 0
+    Do While Not EOF(1)
+       Line Input #1, line$
+       h$ = h$ + line$ + CRLF
+    Loop
+    Close #1
+
+    load_blog = full_html$("Blog", h$, uri$)
 End Function
 
 Function full_html$ (title As String, body As String, pagename As String)
