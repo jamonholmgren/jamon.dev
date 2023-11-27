@@ -357,6 +357,9 @@ Function handle_request% (c As Integer)
                 Case InStr(client_uri(c), "/live")
                     code$ = "301 Moved Permanently" + CRLF + "Location: /archive/live"
                     html$ = "Moved permanently"
+                Case InStr(client_uri(c), "/connect")
+                    code$ = "301 Moved Permanently" + CRLF + "Location: /links"
+                    html$ = "Moved permanently"
                 Case InStr(client_uri(c), "/archive/live")
                     html$ = load_page$("/_archive-live")
                 Case InStr(client_uri(c), "/favicon.ico")
