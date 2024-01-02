@@ -18,7 +18,6 @@ main img {
   margin: 10px auto;
   max-width: 100%;
   height: auto;
-  padding: 5px;
   background-color: #dadada;
   border: solid #cacaca 1px;
 }
@@ -91,6 +90,7 @@ ul#nav {
   justify-content: space-between;
   margin: 2em 0;
   flex-direction: row;
+  padding: 5px;
 }
 
 .illustration {
