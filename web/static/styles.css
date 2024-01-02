@@ -93,6 +93,10 @@ ul#nav {
   flex-direction: row;
 }
 
+.illustration {
+  margin: 2em 0;
+}
+
 .splash-image {
   flex: 1;
   height: 300px;
