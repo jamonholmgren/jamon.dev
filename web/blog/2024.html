@@ -5,5 +5,156 @@
 
   <i>January 3, 2024</i>
 
-  <p>(Placeholder)</p>
+  <p>I have a <em>LOT</em> of photos in Google Photos.</p>
+
+  <p>
+    My wife and I started taking a few digital photos (mixed with regular film photos) when we started dating in
+    2002ish. But we really didn't start taking a lot of photos in earnest until 2005, when our son Cedric was born.
+  </p>
+
+  <figure>
+    <img src="/static/lavacanyon.jpg" alt="Jamon standing on a ridge in 2002" />
+    <figcaption>
+      One of the earliest digital photos of me, standing on a ridge in Lava Canyon in southwest Washington state in
+      2002.
+    </figcaption>
+  </figure>
+
+  <p>
+    Since that time, we've taken thousands and thousands of photos and videos, amounting to just under a terabyte of
+    data. Initially they were all uploaded to Google Picasa Web, but then that was migrated to Google Photos.
+  </p>
+
+  <p>
+    After deliberating about this for quite some time, I finally decided to back up our entire archive. I chose Amazon
+    Glacier because it's very cheap long-term storage.
+  </p>
+
+  <h3>Downloading the archive</h3>
+
+  <p>
+    I started by buying a <a href="https://amzn.to/3vqNH8w" target="_blank">2 TB Crucial external drive</a> that I could
+    connect to my Mac's Thunderbolt/USB-C port. Having an external drive served two purposes: one, I don't blow up my
+    Mac's hard drive when I download all these photos and videos, and two, now I have another backup -- this one
+    locally.
+  </p>
+
+  <p>
+    I then went to <a href="https://takeout.google.com/" target="_blank">Google Takeout</a>. (Make sure you're in the
+    right Google account if you're signed into multiple!). In the "Select data to include" section, I chose the
+    "deselect all" button first, then scrolled down to Google Photos and checked the box next to it. Then I scrolled ALL
+    the way to the bottom and clicked "Next step".
+  </p>
+
+  <p>
+    In the "Choose file type, frequency & destination" section, I chose the "Send download link to email" option. It
+    would be amazing if they had a way to choose an Amazon S3 bucket (or better yet, Glacier itself), but they only
+    support Drive, Dropbox, OneDrive, and Box as of this date. I chose the "Export once" option, .zip, and for file size
+    I chose 10 GB. (I experimented with 50 GB but that was tough to download and upload effectively.)
+  </p>
+
+  <p>After that, I waited a few days for Google Takeout to send me a link.</p>
+
+  <p>
+    Once I had a link, it brought me to a page where I could download the ZIP exports one by one ... about 85 of them. I
+    clicked to download about two or three at a time, putting them on the new external drive I bought, and let them
+    download. It made me log in nearly every time which was annoying. Also, you only have about a week to download them,
+    and with how many I needed to download, I cut it kinda close.
+  </p>
+
+  <p>While you are downloading, you can prepare for uploading with the following instructions.</p>
+
+  <h3>Uploading to AWS Glacier</h3>
+
+  <p>
+    I already have an <a href="https://aws.amazon.com" target="_blank">Amazon AWS account</a>, but if you don't, sign up
+    for one. I won't walk you through that. If you're not able to sign up then this is probably too technical for you.
+  </p>
+
+  <p>Here are the steps I took to create the credentials and Glacier bucket:</p>
+
+  <ol>
+    <li>
+      Log into the <a href="https://console.aws.amazon.com/console/home" target="_blank">AWS Console</a> as a "root
+      user"
+    </li>
+    <li>
+      Go to the
+      <a href="https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials">IAM security credentials</a>
+      section (you can choose a region in the top right, but I just left it as "Global" for this section)
+      <img src="/static/aws-region.jpg" />
+    </li>
+    <li>
+      Create an access key and secret there and copy it somewhere.
+
+      <img src="/static/aws-access-key.jpg" />
+    </li>
+    <li>
+      Install AWS's CLI (these instructions are for macOS):
+
+      <p><code>brew install awscli</code></p>
+    </li>
+    <li>
+      Log in using the access key and secret:
+
+      <p><code>aws configure</code></p>
+    </li>
+    <li>
+      Change directories into wherever you downloaded your backups. For me, it was in an external volume:
+
+      <p>
+        <code> cd "/Volumes/Crucial X8/Backups/JamonAndChyra-GooglePhotos" </code>
+      </p>
+    </li>
+    <li>
+      Create a Glacier bucket in the region of your choice:
+
+      <p><code>aws s3 mb s3://bucketnamehere --region us-west-2</code></p>
+    </li>
+    <li>
+      When your zip files are done downloading, you can upload them either all at once like this:
+
+      <code>
+        aws s3 cp . s3://bucketnamehere/ --recursive --exclude "*" --include "takeout-*.zip" --storage-class
+        DEEP_ARCHIVE
+      </code>
+
+      ...or one at a time like this:
+
+      <code>
+        aws s3 cp . s3://bucketnamehere/ --recursive --exclude "*" --include "takeout-*-001.zip" --storage-class
+        DEEP_ARCHIVE
+      </code>
+
+      ...or in blocks of 10 like this:
+
+      <code>
+        aws s3 cp . s3://bucketnamehere/ --recursive --exclude "*" --include "takeout-*-00?.zip" --storage-class
+        DEEP_ARCHIVE
+      </code>
+
+      <code>
+        aws s3 cp . s3://bucketnamehere/ --recursive --exclude "*" --include "takeout-*-01?.zip" --storage-class
+        DEEP_ARCHIVE
+      </code>
+
+      <code>
+        aws s3 cp . s3://bucketnamehere/ --recursive --exclude "*" --include "takeout-*-02?.zip" --storage-class
+        DEEP_ARCHIVE
+      </code>
+    </li>
+  </ol>
+
+  <p>This part is the most painstaking.</p>
+
+  <h3>Restoring the backup</h3>
+
+  <p>
+    I haven't yet had to restore from a backup yet. Theoretically, you could download using a command something like
+    this to download it to your local folder:
+
+    <code> aws s3 cp s3://bucketnamehere/your-backup-file.zip . --storage-class DEEP_ARCHIVE </code>
+  </p>
+
+  <h3>Good luck!</h3>
 </article>
