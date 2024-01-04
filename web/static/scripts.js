@@ -73,6 +73,23 @@ document.querySelectorAll(".youtube-embed").forEach((el) => {
  * Fetches the blog number and updates the badge and localStorage as necessary.
  */
 function fetchAndUpdateBlogInfo() {
+  // first, if there's no localStorage set, show the badge pre-emptively
+  const storedBlogNumber = parseInt(localStorage.getItem("blogNumber"), 10) || 0;
+
+  // shortcut: if the storedBlogNumber is 0, we don't need to fetch
+  if (storedBlogNumber === 0) {
+    document.getElementById("unread-badge").style.display = "inline";
+
+    // if we're on the blog page, we do need to fetch ... we hack this by setting it to 1
+    if (window.location.pathname.startsWith("/blog")) {
+      storedBlogNumber = 1;
+    }
+  }
+
+  // if the storedBlogNumber is still 0, we don't need to fetch
+  if (storedBlogNumber === 0) return;
+
+  // OK we need to fetch the blog number
   fetch("/static/blog.json")
     .then((response) => response.json())
     .then((data) => {
