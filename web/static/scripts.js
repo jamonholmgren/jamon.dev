@@ -74,7 +74,7 @@ document.querySelectorAll(".youtube-embed").forEach((el) => {
  */
 function fetchAndUpdateBlogInfo() {
   // first, if there's no localStorage set, show the badge pre-emptively
-  const storedBlogNumber = parseInt(localStorage.getItem("blogNumber"), 10) || 0;
+  let storedBlogNumber = parseInt(localStorage.getItem("blogNumber"), 10) || 0;
 
   // shortcut: if the storedBlogNumber is 0, we don't need to fetch
   if (storedBlogNumber === 0) {
