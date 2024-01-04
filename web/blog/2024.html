@@ -92,24 +92,22 @@
     <li>
       Install AWS's CLI (these instructions are for macOS):
 
-      <p><code>brew install awscli</code></p>
+      <code>brew install awscli</code>
     </li>
     <li>
       Log in using the access key and secret:
 
-      <p><code>aws configure</code></p>
+      <code>aws configure</code>
     </li>
     <li>
       Change directories into wherever you downloaded your backups. For me, it was in an external volume:
 
-      <p>
-        <code> cd "/Volumes/Crucial X8/Backups/JamonAndChyra-GooglePhotos" </code>
-      </p>
+      <code> cd "/Volumes/Crucial X8/Backups/JamonAndChyra-GooglePhotos" </code>
     </li>
     <li>
       Create a Glacier bucket in the region of your choice:
 
-      <p><code>aws s3 mb s3://bucketnamehere --region us-west-2</code></p>
+      <code>aws s3 mb s3://bucketnamehere --region us-west-2</code>
     </li>
     <li>
       When your zip files are done downloading, you can upload them either all at once like this:
