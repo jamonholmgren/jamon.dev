@@ -310,3 +310,9 @@ code {
   /* slight interior shadow */
   box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
 }
+
+.copyright {
+  font-size: 12px;
+  text-align: center;
+  margin: 20px 0;
+}
