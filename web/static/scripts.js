@@ -68,3 +68,40 @@ function youtubeEmbed(youtubeId, title) {
 document.querySelectorAll(".youtube-embed").forEach((el) => {
   el.innerHTML = youtubeEmbed(el.dataset.youtubeId, el.innerText);
 });
+
+/**
+ * Fetches the blog number and updates the badge and localStorage as necessary.
+ */
+function fetchAndUpdateBlogInfo() {
+  fetch("/static/blog.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const currentBlogNumber = data.blogNumber;
+      updateBadge(currentBlogNumber);
+
+      if (window.location.pathname.startsWith("/blog")) {
+        localStorage.setItem("blogNumber", currentBlogNumber.toString());
+        updateBadge(0);
+      }
+    })
+    .catch((error) => console.error("Error fetching blog number:", error));
+}
+
+/**
+ * Updates the navigation badge with the number of new blog posts.
+ */
+function updateBadge(currentBlogNumber) {
+  const storedBlogNumber = parseInt(localStorage.getItem("blogNumber"), 10) || 0;
+
+  const showBadge = currentBlogNumber > storedBlogNumber;
+
+  // // We could update the badge to show something other than "1", but I'd rather not
+  // if (showBadge) {
+  //   document.getElementById("unread-badge").textContent = currentBlogNumber - storedBlogNumber;
+  // }
+
+  document.getElementById("unread-badge").style.display = showBadge ? "inline" : "none";
+}
+
+// Call the function on page load
+fetchAndUpdateBlogInfo();

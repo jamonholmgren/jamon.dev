@@ -362,9 +362,6 @@ Function handle_request% (c As Integer)
                     html$ = "Moved permanently"
                 Case InStr(client_uri(c), "/archive/live")
                     html$ = load_page$("/_archive-live")
-                Case InStr(client_uri(c), "/favicon.ico")
-                    ' html$ = favicon(c)
-                    GoTo not_found
                 Case InStr(client_uri(c), "/static/path")
                     html$ = load_static$("/static/path.html")
                 ' Case InStr(client_uri(c), "/static/tank.css")
@@ -377,12 +374,19 @@ Function handle_request% (c As Integer)
                 Case InStr(client_uri(c), "/robots.txt")
                     ' html$ = robots_txt()
                     GoTo not_found
+                Case InStr(client_uri(c), "/static/blog.json")
+                    html$ = load_static$("/static/blog.json")
+                    content_type$ = "application/json"
                 Case InStr(client_uri(c), "/static/styles.css")
                     respond_static c, "HTTP/1.1 200 OK", "styles.css", "text/css"
                     Exit Function
                 Case InStr(client_uri(c), "/static/scripts.js")
                     ' stream static file
                     respond_static c, "HTTP/1.1 200 OK", "scripts.js", "text/javascript"
+                    Exit Function
+                Case InStr(client_uri(c), "/static/favicon.svg")
+                    ' stream static file
+                    respond_static c, "HTTP/1.1 200 OK", "tractor.svg", "image/svg+xml"
                     Exit Function
                 Case InStr(client_uri(c), "/static/snow.js")
                     ' Check if it's wintertime before we load up the snow
