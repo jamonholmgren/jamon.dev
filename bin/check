@@ -1,12 +1,21 @@
 #!/bin/bash
 
-URL="https://jamon.dev"
-STATUS_CODE=$(curl --max-time 10 --write-out '%{http_code}' --silent --output /dev/null $URL)
+# This pings the local server and restarts it if it doesn't respond with a 200 status code.
 
-if [[ $STATUS_CODE -ne 200 ]]; then
-  echo "the website is down! status code: $STATUS_CODE"
-  echo "restarting server..."
-  pkill qb64_server
+# First, check if we are running on the server (aka not on Linux)
+if [ "$(uname)" != "Linux" ]; then
+    echo "Not running on Linux. Exiting..."
+    exit 0
+fi
+
+# Ping localhost and check for 200 status code
+if ! curl -s -o /dev/null -w "%{http_code}" http://localhost | grep -q "200"; then
+    echo "Localhost is not responding with a 200 status code. Restarting service..."
+    # Your restart commands
+    pkill qb64_server
+    lsof -t -i:80 | xargs -r kill
+    systemctl daemon-reload
+    systemctl restart qb64-watcher.service
 else
-  echo "the website is up! status code: $STATUS_CODE"
+    echo "Localhost is up and running."
 fi
