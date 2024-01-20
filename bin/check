@@ -8,8 +8,8 @@ if [ "$(uname)" != "Linux" ]; then
     exit 0
 fi
 
-# Ping localhost and check for 200 status code
-if ! curl -s -o /dev/null -w "%{http_code}" http://localhost | grep -q "200"; then
+# Ping localhost and check for 200 status code within 10 seconds (-m 10)
+if ! curl -s -o /dev/null -w "%{http_code}" -m 10 http://localhost | grep -q "200"; then
     echo "Localhost is not responding with a 200 status code. Restarting service..."
     # Your restart commands
     pkill qb64_server

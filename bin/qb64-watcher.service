@@ -14,10 +14,11 @@
 
 [Unit]
 Description=Service that keeps running the qb64_server from startup.
+Wants=network-online.target
+After=network-online.target
 
 [Install]
 WantedBy=multi-user.target
-After=network.target
 
 [Service]
 Type=simple
