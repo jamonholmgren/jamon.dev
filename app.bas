@@ -114,7 +114,7 @@ Do
     End If
 
     ' Limit CPU usage and leave some time for stuff be sent across the network..I have it as high as 1000 on my Front End
-    _Limit 50 ' default 50
+    _Limit 250 ' default 50
 Loop Until InKey$ = Chr$(27) ' escape quits
 
 ' After a keypress, close all connections and quit
