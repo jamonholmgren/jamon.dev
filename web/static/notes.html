@@ -19,10 +19,7 @@
 <html lang="en">
   <head>
     <title>textbox.page - Simple text box for writing</title>
-    <meta
-      name="description"
-      content="Simple text box for writing, editing, copy/pasting."
-    />
+    <meta name="description" content="Simple text box for writing, editing, copy/pasting." />
     <meta name="viewport" content="width=device-width" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <style>
@@ -80,17 +77,22 @@
     </style>
   </head>
   <body>
+    <script>
+      // if it's textbox.page, tell them it'll expire soon and to update
+      // their bookmark to textbox.jamon.dev
+      if (window.location.hostname === "textbox.page") {
+        alert(
+          "Hey there! It looks like you're using textbox.page. I'm going to let this domain expire. Please update your bookmark to textbox.jamon.dev. Thanks!"
+        );
+      }
+    </script>
     <main>
-      <label for="t" class="offscreen"
-        >Text area for typing notes and code</label
-      >
+      <label for="t" class="offscreen">Text area for typing notes and code</label>
       <textarea id="t"></textarea>
     </main>
     <p id="byline">
       Built by
-      <a href="https://jamonholmgren.com" target="_blank" rel="noopener"
-        >Jamon Holmgren</a
-      >
+      <a href="https://jamonholmgren.com" target="_blank" rel="noopener">Jamon Holmgren</a>
       &bull;
       <a
         href="https://github.com/jamonholmgren/jamon.dev/blob/main/web/static/notes.html"
@@ -99,9 +101,7 @@
         >GitHub Source</a
       >
       &bull;
-      <a href="https://infinite.red" target="_blank" rel="noopener"
-        >Infinite Red</a
-      >
+      <a href="https://infinite.red" target="_blank" rel="noopener">Infinite Red</a>
       &bull;
       <a href="javascript:codeMode()">Code Mode</a>
       &bull;
@@ -141,17 +141,8 @@
         var chars = t.value.split("").length;
         var seconds = Math.floor((new Date().getTime() - startTime) / 1000);
         var secondsMinutes =
-          seconds < 59
-            ? seconds + " elapsed seconds"
-            : Math.floor(seconds / 60) + " elapsed minutes";
-        stats.innerText =
-          lines +
-          " lines, " +
-          words +
-          " words, " +
-          chars +
-          " characters, " +
-          secondsMinutes;
+          seconds < 59 ? seconds + " elapsed seconds" : Math.floor(seconds / 60) + " elapsed minutes";
+        stats.innerText = lines + " lines, " + words + " words, " + chars + " characters, " + secondsMinutes;
       }
       setInterval(updateStats, 1000);
 
@@ -163,11 +154,7 @@
       }
 
       function ready(fn) {
-        (
-          document.attachEvent
-            ? document.readyState === "complete"
-            : document.readyState !== "loading"
-        )
+        (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading")
           ? fn()
           : document.addEventListener("DOMContentLoaded", fn);
       }
