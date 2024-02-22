@@ -21,6 +21,9 @@ Const METHOD_HEAD = 1
 Const METHOD_GET = 2
 Const METHOD_POST = 3
 
+' Logging?
+Const ENABLE_LOG = 0 ' 0 for off, 1 for on
+
 ' When did the server start?
 Dim Shared StartTime As String
 StartTime = datetime
@@ -47,7 +50,7 @@ Dim client_browser(1 To MAX_CLIENTS) As String
 
 connections = 0
 
-Print "Starting QB64 webserver on port " + DEFAULT_PORT
+DebugLog "Starting QB64 webserver on port " + DEFAULT_PORT
 
 ' kick off the listener
 host = _OpenHost("TCP/IP:" + DEFAULT_PORT)
@@ -60,24 +63,24 @@ Do
             ' If this connection is active
             If client_handle(c) Then
                 ' Add logging to monitor connection processing
-                Print "Processing connection #" + Str$(c) + " (" + Str$(ROUND((Timer(.001) - client_expiry(c)) / 1000, 1)) + "ms old)"
+                DebugLog "Processing connection #" + Str$(c) + " (" + Str$(ROUND((Timer(.001) - client_expiry(c)) / 1000, 1)) + "ms old)"
 
                 ' work on the request in an effort to finish it
                 If handle_request(c) Then
                     ' Ignore "captive" pings
                     If InStr(client_uri(c), "captive") < 1 Then
-                        Print "Completed request for: " + client_uri(c)
-                        Print " from " + _ConnectionAddress(client_handle(c))
-                        Print " using " + client_browser(c)
+                        DebugLog "Completed request for: " + client_uri(c)
+                        DebugLog " from " + _ConnectionAddress(client_handle(c))
+                        DebugLog " using " + client_browser(c)
                     End If
                     tear_down c
                     ' If the request was completed, we can reduce the number of active connections
                     connections = connections - 1
                     ' Timeout old connections
                 ElseIf Timer >= client_expiry(c) And Timer < client_expiry(c) + MIDNIGHT_FIX_WINDOW Then
-                    Print "TIMED OUT: request for: " + client_uri(c)
-                    Print " from " + _ConnectionAddress(client_handle(c))
-                    Print " using " + client_browser(c)
+                    DebugLog "TIMED OUT: request for: " + client_uri(c)
+                    DebugLog " from " + _ConnectionAddress(client_handle(c))
+                    DebugLog " using " + client_browser(c)
                     respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
                     tear_down c
                     ' If the request timed out, we can reduce the number of active connections
@@ -123,7 +126,7 @@ System ' Quits to system
 
 
 StaticFileError:
-    Print "File error: " + Error$
+    DebugLog "File error: " + Error$
     Resume Next
 
 ' This tears down a connection, empties memory, and resets the client handle to 0
@@ -402,7 +405,7 @@ Function handle_request% (c As Integer)
                     content_type$ = "text/javascript"
                 Case InStr(client_uri(c), "/static/") AND InStr(client_uri(c), ".jpg")
                     image_name$ = Mid$(client_uri(c), InStr(client_uri(c), "/static/") + 8)
-                    Print "Loading image: " + image_name$
+                    DebugLog "Loading image: " + image_name$
                     respond_binary c, "HTTP/1.1 200 OK", image_name$, "image/jpeg"
                     Exit Function
                 Case Else
@@ -415,13 +418,13 @@ Function handle_request% (c As Integer)
             GoTo unimplemented
         Case Else
             'This shouldn't happen because we would have EXITed FUNCTION earlier
-            Print "ERROR: Unknown method. This should never happen."
+            DebugLog "ERROR: Unknown method. This should never happen."
     End Select
 
     ' Done with all the normal stuff. Everything past this point is just helper "functions" (actually gotos)
     Dim total_time As Single
     total_time = Timer(.001) - start_timer
-    Print "Request handled in " + Str$(total_time) + " seconds."
+    ' DebugLog "Request handled in " + Str$(total_time) + " seconds."
 
     Exit Function
 
@@ -444,7 +447,7 @@ Function handle_request% (c As Integer)
     Exit Function
 
     runtime_internal_error:
-    Print "RUNTIME ERROR: Error code"; Err; ", Line"; _ErrorLine
+    DebugLog "RUNTIME ERROR: Error code" + Str$(Err) + ", Line " + Str$(_ErrorLine)
     Resume internal_error
     
     internal_error:
@@ -503,7 +506,7 @@ End Sub
 Sub respond_static (c As Integer, header As String, filename as String, content_type As String)
     Shared client_handle() As Integer
 
-    Print "Serving static file: " + filename
+    ' DebugLog "Serving static file: " + filename
 
     out$ = header + CRLF
     out$ = out$ + "Date: " + datetime + CRLF
@@ -853,3 +856,9 @@ Function load_static$ (filename as String)
 
     load_static = h$
 End Function
+
+Sub DebugLog(s as String)
+    if ENABLE_LOG = 1 then
+        Print s
+    end if
+End Sub
