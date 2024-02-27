@@ -1,4 +1,217 @@
 <article>
+  <h2 id="opinions">
+    <a href="/blog/2024/#opinions">On Tech Opinions</a>
+  </h2>
+
+  <i>February 27, 2024</i>
+
+  <p>
+    I continuously see strong opinions by Twitter devs, said with authority and slamming the door shut on various
+    technologies. I think it’s hard for newer developers in particular to see through this and understand who to follow
+    and what opinions to trust.
+  </p>
+
+  <p><strong>Here’s how to cut through the noise.</strong></p>
+
+  <p>Nothing substitutes for shipping real world software to users.</p>
+
+  <p><strong>NOTHING.</strong></p>
+
+  <p>
+    Not even YouTube videos. (Shameless plug: go follow my channel at
+    <a href="https://quests.jamon.dev" target="_blank">quests.jamon.dev</a>.)
+  </p>
+
+  <p>
+    They’re useful for exploring, for learning, for developing nuance and depth in a subject. But they’re not useful for
+    developing an actual useful opinion about a technology.
+  </p>
+
+  <p><strong>Here’s how I would recommend you develop an actual useful opinion about a technology.</strong></p>
+
+  <p>
+    <em>
+      (Hint: while you’re in the middle of this process, it’s okay to say “I’m still researching and learning about
+      &lt;technology&gt;. My current framing is &lt;opinion&gt;, but I need to know more before I can say that more
+      definitively.)
+    </em>
+  </p>
+
+  <p>
+    <strong>Don’t assume your intuition is 100% accurate.</strong> It’s okay to go “ew” at first glance, but don’t
+    mistake that for anything real. Go into it knowing that you may have things to learn and that this journey will
+    either support your initial reaction or you’ll learn something — both positive results.
+  </p>
+
+  <p>
+    Our intuition is noisy and unreliable. When I first saw JSX my intuition was “ew”. Mixing HTML and JS? Can’t run it
+    in the console? Needing to rename my JavaScript files “.jsx”?
+  </p>
+
+  <p>
+    Many of you had the same reaction. And we were wrong about JSX, because our intuition wasn’t reliable there. JSX is
+    actually a very useful technology and has been used to build all kinds of complex software now.
+  </p>
+
+  <p>
+    <strong>Learn the context around the technology.</strong> Realize there’s almost always a reason something is done
+    the way it is. Learn the history, what tradeoffs were considered, what bugged the creators of the technology about
+    existing solutions.
+  </p>
+
+  <p>
+    <strong>Learn how it actually works, at least at a high level.</strong> I can’t tell you how many times I’ve heard
+    people issue very strong opinions about LLMs, for example, without understanding the slightest thing about neural
+    nets and transformers and self-attention.
+  </p>
+
+  <p>It’s hard to take them seriously.</p>
+
+  <p>
+    <strong>Go ship something real with it, to actual users.</strong> Try to actually use it in a way that the creators
+    of the technology would agree is the right way to use it.
+  </p>
+
+  <p>
+    And learn the tradeoffs. Because it’s always tradeoffs. What’s good, what’s bad, what is promising but
+    underdeveloped?
+  </p>
+
+  <p>
+    <strong>Build in feedback loops.</strong> The only real way to get good at something is through tight feedback loops
+    and iteration. Having someone you can bounce ideas off of and provide feedback as you go is invaluable. It’s
+    especially helpful if those people have diverse technical perspectives.
+  </p>
+
+  <p>
+    For example, when I was writing my <a href="" target="_blank">article about Flutter</a>, I asked Luke Pighetti and
+    Theo to review it. Both gave me very valuable feedback and also became friends in the process, people I can trust to
+    give good insight.
+  </p>
+
+  <p>
+    Once you’ve done this, you have a really good foundation to talk about the tradeoffs of that particular technology.
+    It’ll also give you a lot of useful perspective for other technologies in the future.
+  </p>
+
+  <p>BUT…</p>
+
+  <p>…technologies mature, they change, and they evolve.</p>
+
+  <p>
+    So, realize that your opinion, if you’re not staying up to date after your initial research, can fall out of date.
+  </p>
+
+  <p>I’ll give you an example.</p>
+
+  <p>
+    I tried <a href="https://reactnativeelements.com/" target="_blank">react-native-elements</a> back in the day. It was
+    kind of kludgy and had very few useful features. So I kind of dismissed it as not a particularly good option for a
+    React Native UI kit, and I would tell clients that.
+  </p>
+
+  <p>
+    Then one day a potential client told me he’d like to use it. I said I hadn’t used it in a while and would need to
+    see what the latest and greatest version was like.
+  </p>
+
+  <p>
+    It turns out that version 3 had been released with a lot of really great improvements and it was actually …
+    <em>good!</em>
+  </p>
+
+  <p>
+    Some of you really want more examples, so I’ll give you an opinion which is based on me going through this process
+    (above) over many years: Redux.
+  </p>
+
+  <p>
+    We used Redux exclusively in the beginning for several years. We switched to MST about 5 years ago, but still use
+    Redux on projects and have continuously for 8 years. We’ve also used RTK on multiple projects.
+  </p>
+
+  <p>Here’s my opinion about Redux:</p>
+
+  <ul>
+    <li>One of the best core teams of any JS tech — incredibly smart, engaging, driven</li>
+    <li>Excellent documentation</li>
+    <li>Github Copilot is REALLY GOOD at Redux</li>
+    <li>Tons of articles, videos, tutorials</li>
+    <li>Redux makes the tradeoff of some verbosity for consistency and predictability and explicitness</li>
+    <li>It’s particularly designed for larger teams where having consistency is more important than expressiveness</li>
+    <li>It helps ensure that everyone on the team follows the same patterns and principles</li>
+    <li>RTK is a nicer, more modern pattern that addresses a lot of the concerns people had with original Redux</li>
+  </ul>
+
+  <p>However:</p>
+
+  <ul>
+    <li>
+      The verbosity is a cost in and of itself — boilerplate can make it harder to spot inconsistencies and bugs, and
+      your code base swells
+    </li>
+    <li>It’s slower to work in. We’re more productive, even on large code bases, with MST</li>
+    <li>
+      Working with immutable data everywhere is an awkward developer experience and results in a lot of extra
+      allocations (immer makes this better, but doesn’t fully solve it) (ironically, the guy who created immer also
+      created MST — Michel Weststrate)
+    </li>
+    <li>
+      Actions being dispatched data handled by matchers is a less intuitive pattern than simply calling a method on an
+      object (like MST’s actions)
+    </li>
+    <li>
+      While it’s totally possible to write performant code in Redux, you have to be very intentional about how you
+      structure your data models and selectors — MST makes this dead simple in comparison.
+    </li>
+  </ul>
+
+  <p>
+    So, my opinion (and the majority of my team) is that
+    <a href="https://mobx-state-tree.js.org/" target="_blank">MobX-State-Tree</a> is nicer to work in for most projects
+    than <a href="https://redux.js.org/" target="_blank">Redux</a>.
+  </p>
+
+  <p>
+    These are <em>real world</em> observations that led to these opinions. These are things that I think I can safely be
+    pretty opinionated about. But even then, I am open to being wrong about it and open to things changing over time.
+    And other developers may prefer the tradeoffs of Redux over MST.
+  </p>
+
+  <p>
+    There are way too many technologies out there to research them all. So, what if you don’t have time to do all of
+    this? Can you still have an opinion about a technology?
+  </p>
+
+  <p>How I approach this is by … well, just saying that <strong>I don’t have a lot of experience with it.</strong></p>
+
+  <p>
+    For example, if someone were to ask me about <a href="https://xstate.js.org/">XState</a>, I would say something like
+    this:
+  </p>
+
+  <p>
+    <em>
+      “David and his team are brilliant engineers. I would tend to lean toward trusting their opinions on patterns and
+      software. With that said, my previous forays into XState haven’t been successful. I think it was because I didn’t
+      take the time to really learn the best ways to approach state machines and also was probably trying to use it in
+      ways it wasn’t intended to be used. I also think it was a little too steep of a learning curve and that hurt
+      adoption. I also think the problems it solves don’t tend to be ones that are immediately top of mind for
+      programmers. With that said, it looks like they’ve made some really great improvements in recent versions to
+      simplify it, and I’d be willing to try it again sometime.”
+    </em>
+  </p>
+
+  <p>This gives the facts and some opinions without slamming the door shut on it.</p>
+
+  <p>
+    <strong>Ultimately, everything in tech keeps evolving.</strong> Your best bet is to invest in your own knowledge and
+    experience. And
+    <strong>ship code!</strong>
+  </p>
+
+  <hr />
+
   <h2 id="glacier">
     <a href="/blog/2024/#glacier">Backing up Google Photos to Amazon Glacier</a>
   </h2>
