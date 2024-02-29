@@ -4,8 +4,20 @@ body {
   background-color: #ecebe8;
   color: #414140;
   font-family: "SF Pro Text", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  font-size: 18px;
+  font-size: 28px;
   line-height: 1.5;
+}
+
+.pacifico-regular,
+main h2 {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+::selection {
+  color: white;
+  background-color: #414140;
 }
 
 main {
@@ -166,14 +178,14 @@ footer .counter {
 
 .thick-box-text {
   font-weight: 600;
-  color: white;
-  background-color: #414140;
-  display: inline-block;
-  padding: 0px 10px;
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-  top: 18px;
+  color: #414140;
+  /* background-color: #414140; */
+  /* display: inline-block; */
+  /* padding: 0px 10px; */
+  /* border-radius: 10px; */
+  /* overflow: hidden; */
+  /* position: relative; */
+  /* top: 18px; */
 }
 
 .hoverable-image {
