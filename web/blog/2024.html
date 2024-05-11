@@ -1,4 +1,91 @@
 <article>
+  <h2 id="modular">
+    <a href="/blog/2024/#modular">On Modularization and Integration</a>
+  </h2>
+
+  <i>May 11, 2024</i>
+
+  <p>
+    I’ve been thinking a lot about modularization and integration lately. I think it’s a really important topic that
+    doesn’t get enough attention.
+  </p>
+
+  <p>There's a natural modular/integrated cycle that happens with anything, but it's very apparent in software:</p>
+
+  <p>
+    <strong>- optimal path not known, modularize</strong>
+  </p>
+  <p>
+    During this time, experimentation, exploration, creativity, and iteration is key. This makes for a messy, chaotic,
+    uncertain, and stressful time, but it allows many people to explore different pathways and gather experience and
+    data and try out various pathways.
+  </p>
+  <p>
+    This is the "modular" era, where having lots of swappable components is super useful because ... well, not every
+    part of the value chain is fully explored.
+  </p>
+  <p>
+    Think early days of JS. It seemed like every week, someone was coming out with a new framework, library, pattern. We
+    complained about it at the time, in fact. It was messy and chaotic.
+  </p>
+  <p>
+    And libraries that did one thing really well (for example: React) were rewarded, while full stack frameworks that
+    tried to do everything (think Meteor, Ember) didn't work quite right.
+  </p>
+  <p>
+    You can even see this in other parts of the stack. Rollup, Webpack were focused on a plugin (modularized)
+    architecture, because you needed flexibility.
+  </p>
+  <p>
+    And of course TypeScript was new, and we needed to figure out how people would want to use it. tsconfig options were
+    very important.
+  </p>
+  <p>Over time, though, common patterns start emerging. And that's when you change to the other part of the cycle:</p>
+
+  <p>
+    <strong>- optimal path known, integrate</strong>
+  </p>
+
+  <p>
+    Next.js, Remix, T3, Create React App, RSC/React Compiler, Ignite, etc ... we know at least somewhat optimal/accepted
+    paths by now, and it's time to make them all work well together. Rome/Biome, Bun, Deno, etc start integrating the
+    common patterns in a really well-optimized way.
+  </p>
+  <p>
+    And we now know the optimal way to use TypeScript as well. tsconfig could be standardized. This is reflected in
+    Adam's tweet above.
+  </p>
+  <p>
+    During this time, people still experiment, but it's within the bounds of the frameworks and patterns that have been
+    well-established.
+  </p>
+  <p>
+    As consumer tech changes, however, new needs arise where the existing patterns aren't quite suited for. Initially,
+    we work around them, but start feeling constrained by the assumptions and standards built in to our tools.
+  </p>
+  <p>This leads us back to:</p>
+
+  <p>
+    <strong>- optimal path not known, modularize</strong>
+  </p>
+
+  <p>
+    We now have new areas of the stack that we need to experiment with. Configurable, modular / swappable components
+    become more attractive, even if it means they don't integrate quite as well as the standard stack -- because they
+    attempt to solve the problems associated with the new technology.
+  </p>
+  <p>And so on we go.</p>
+
+  <p>
+    It's best to recognize where we are in this cycle, and to be okay with the messiness and chaos of the modular era,
+    and to be okay with the constraints and standards of the integrated era.
+  </p>
+
+  <p>
+    I didn't come up with this theory. Many of you will recognize it in various forms; where I learned about it was Ben
+    Thompson / Clayton Christensen.
+  </p>
+
   <h2 id="opinions">
     <a href="/blog/2024/#opinions">On Tech Opinions</a>
   </h2>
