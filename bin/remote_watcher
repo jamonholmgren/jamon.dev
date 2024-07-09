@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL="https://jamon.dev/"
+URL="https://jamon.dev/remote_ping"
 TIMEOUT=4
 RESTART_SCRIPT="/Users/jh/Code/jamon.dev/bin/restart"
 LOG_FILE="/Users/jh/Code/jamon.dev/logs/remote_watcher.log"
