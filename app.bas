@@ -230,6 +230,8 @@ Function handle_request% (c As Integer)
                 client_uri(c) = Mid$(cur_line, methodSpace + 1, uriSpace - (methodSpace + 1))
                 If Len(client_uri(c)) = 0 Then GoTo bad_request
 
+                If InStr(client_uri(c), "remote_ping") Then GoTo quick_ping
+
                 ' The rest is the protocol
                 version$ = Mid$(cur_line, uriSpace + 1)
 
@@ -443,6 +445,11 @@ Function handle_request% (c As Integer)
     Exit Function
     unimplemented:
     respond c, "HTTP/1.1 501 Not Implemented", "", "text/html"
+    handle_request = 1
+    Exit Function
+
+    quick_ping:
+    respond c, "HTTP/1.1 200 OK", "OK", "text/html"
     handle_request = 1
     Exit Function
 
