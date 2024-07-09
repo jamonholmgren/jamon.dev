@@ -5,6 +5,7 @@ TIMEOUT=4
 RESTART_SCRIPT="/Users/jh/Code/jamon.dev/bin/restart"
 LOG_FILE="/Users/jh/Code/jamon.dev/logs/remote_watcher.log"
 MAX_LINES=1000
+INTERNET_CHECK="8.8.8.8" # google dns
 
 # Truncate log file if it exceeds the maximum number of lines
 touch $LOG_FILE
@@ -15,6 +16,11 @@ fi
 
 # Ping the website
 if ! curl --silent --max-time $TIMEOUT --head $URL > /dev/null; then
+  # double check my own internet
+  if ! ping -c 1 -W $TIMEOUT $INTERNET_CHECK > /dev/null; then
+    echo "$(date): My internet is down, skipping..." >> $LOG_FILE
+    exit 1
+  fi
   echo "$(date): $URL is down, restarting..." >> $LOG_FILE
   $RESTART_SCRIPT
 else
