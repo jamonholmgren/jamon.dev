@@ -5,3 +5,4 @@ app
 gorilla
 .vscode
 .config/flame/flame-history.json
+logs/*

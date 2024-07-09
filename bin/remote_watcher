@@ -1,0 +1,22 @@
+#!/bin/bash
+
+URL="https://jamon.dev/"
+TIMEOUT=4
+RESTART_SCRIPT="/Users/jh/Code/jamon.dev/bin/restart"
+LOG_FILE="/Users/jh/Code/jamon.dev/logs/remote_watcher.log"
+MAX_LINES=1000
+
+# Truncate log file if it exceeds the maximum number of lines
+touch $LOG_FILE
+if [ "$(wc -l < "$LOG_FILE")" -gt $MAX_LINES ]; then
+  tail -n $MAX_LINES $LOG_FILE > $LOG_FILE.tmp && mv $LOG_FILE.tmp $LOG_FILE
+  # echo "$(date): Log file truncated to last $MAX_LINES lines." >> $LOG_FILE
+fi
+
+# Ping the website
+if ! curl --silent --max-time $TIMEOUT --head $URL > /dev/null; then
+  echo "$(date): $URL is down, restarting..." >> $LOG_FILE
+  $RESTART_SCRIPT
+else
+  echo "$(date): $URL is up" >> $LOG_FILE
+fi
