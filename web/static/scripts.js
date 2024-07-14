@@ -128,11 +128,11 @@ if (window.location.pathname.startsWith("/blog")) {
     // we'll now gather all the blog post titles and add them to the sub nav
     const articles = document.querySelectorAll("article");
     // grab the titles from the contained h2s and add to the article objects
-    // as well as the anchor links
+    // as well as the link links
     articles.forEach((article) => {
       const articleLink = article.querySelector("h2 a");
       article.dataset.title = articleLink.textContent;
-      article.dataset.anchor = articleLink.href;
+      article.dataset.link = articleLink.href;
       article.dataset.hash = articleLink.hash;
     });
 
@@ -151,7 +151,7 @@ if (window.location.pathname.startsWith("/blog")) {
       const title = hash.slice(1); // remove the #
       const li = document.createElement("li");
       const a = document.createElement("a");
-      a.href = article.dataset.anchor;
+      a.href = article.dataset.link;
       a.textContent = title;
       a.title = fullTitle;
       a.dataset.text = title; // to prevent layout shift on hover
@@ -177,6 +177,17 @@ if (window.location.pathname.startsWith("/blog")) {
       });
       li.appendChild(a);
       ul.appendChild(li);
+
+      // let's also add a "back to top" link at the bottom of each article
+      const backToTop = document.createElement("a");
+      backToTop.href = "#";
+      backToTop.textContent = "Back to top";
+      backToTop.classList.add("back-to-top");
+      backToTop.addEventListener("click", (e) => {
+        window.scrollTo(0, 0);
+        e.preventDefault();
+      });
+      article.appendChild(backToTop);
     });
 
     // append the ul to the sub nav
@@ -185,7 +196,7 @@ if (window.location.pathname.startsWith("/blog")) {
     // automatically click on the proper link based on the URL hash
     const hash = window.location.hash;
     if (hash) {
-      const link = ul.querySelector(`a[href='${hash}']`);
+      const link = ul.querySelector(`a[href$="${hash}"]`);
       if (link) link.click();
     }
   });

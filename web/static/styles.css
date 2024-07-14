@@ -154,6 +154,15 @@ article {
   border-bottom: 1px solid #dadada;
 }
 
+article a.previous,
+article a.next {
+  display: block;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 20px;
+  font-weight: 200;
+}
+
 footer {
   margin-top: 1em;
   text-align: center;
