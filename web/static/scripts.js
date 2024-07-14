@@ -202,6 +202,29 @@ if (window.location.pathname.startsWith("/blog")) {
     if (hash) {
       const link = ul.querySelector(`a[href$="${hash}"]`);
       if (link) link.click();
+    } else {
+      // if no hash, click the first link
+      const link = ul.querySelector("a");
+      setTimeout(() => link.click(), 0);
     }
+
+    // also click the proper link if only the hash changes in the URL
+    window.addEventListener("hashchange", () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const link = ul.querySelector(`a[href$="${hash}"]`);
+        if (link) link.click();
+        // scroll to top
+        window.scrollTo(0, 0);
+      }
+    });
   });
 }
+
+// For any href="http..." links, add target="_blank" and rel="noopener"
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("a[href^='http']").forEach((a) => {
+    a.target = "_blank";
+    a.rel = "noopener";
+  });
+});

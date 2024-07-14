@@ -365,6 +365,7 @@ code {
   /* listed horizontally, aligned left, flowing to the right and wrapping */
   /* but staying left justified, not expanding to fill the space */
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: flex-start;
