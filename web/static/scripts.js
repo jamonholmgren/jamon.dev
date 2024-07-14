@@ -178,6 +178,10 @@ if (window.location.pathname.startsWith("/blog")) {
       li.appendChild(a);
       ul.appendChild(li);
 
+      // // make clone to test longer list
+      // const li2 = li.cloneNode(true);
+      // ul.appendChild(li2);
+
       // let's also add a "back to top" link at the bottom of each article
       const backToTop = document.createElement("a");
       backToTop.href = "#";
