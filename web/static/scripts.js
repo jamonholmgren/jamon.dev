@@ -147,17 +147,20 @@ if (window.location.pathname.startsWith("/blog")) {
     // now let's add the articles to the sub nav
     articles.forEach((article) => {
       const hash = article.dataset.hash;
+      const fullTitle = article.dataset.title;
+      const title = hash.slice(1); // remove the #
       const li = document.createElement("li");
       const a = document.createElement("a");
       a.href = article.dataset.anchor;
-      a.textContent = hash;
-      a.title = article.dataset.title;
+      a.textContent = title;
+      a.title = fullTitle;
+      a.dataset.text = title; // to prevent layout shift on hover
+
       // on click, set this one to active and remove active from the others
       a.addEventListener("click", (e) => {
         // remove active from all the other links
         ul.querySelectorAll("a").forEach((link) => link.classList.remove("active"));
         // add active to this link
-        console.log("adding active to", a);
         a.classList.add("active");
         // also hide all articles except this one
         articles.forEach((article) => {

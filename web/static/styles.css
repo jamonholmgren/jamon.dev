@@ -151,6 +151,7 @@ nav ul li a:hover {
 article {
   margin: 0 auto;
   max-width: 680px;
+  border-bottom: 1px solid #dadada;
 }
 
 footer {
@@ -331,35 +332,50 @@ code {
 
 #blog-years {
   display: flex;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
 }
 #blog-years ul.articles {
   /* listed horizontally, aligned left, flowing to the right and wrapping */
+  /* but staying left justified, not expanding to fill the space */
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 #blog-years ul.articles li {
   margin: 0.5rem;
+  flex: initial;
 }
 #blog-years ul.articles li a {
-  display: block;
+  display: inline-flex;
   padding: 0.5rem 1rem;
   border-radius: 5px;
   background-color: #f5f5f5;
   color: #414140;
   text-decoration: none;
+  flex-direction: column;
 }
 #blog-years ul.articles li a.active {
   background-color: #c7433f;
   color: white;
 }
+#blog-years ul.articles li a::after {
+  /* prevent the hover effect from changing the layout */
+  /* brilliant: https://css-tricks.com/bold-on-hover-without-the-layout-shift/ */
+  content: attr(data-text);
+  content: attr(data-text) / "";
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+  font-weight: bold;
+}
 #blog-years div.years {
   /* listed vertically */
   flex-direction: column;
   align-items: center;
+  border-right: 1px solid #fff;
 }
 #blog-years div.years a {
   display: block;
