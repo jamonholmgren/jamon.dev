@@ -67,7 +67,7 @@ a:hover {
   color: #c7433f;
 }
 
-ul#nav {
+nav ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -77,11 +77,11 @@ ul#nav {
   flex-wrap: wrap;
 }
 
-#nav li {
+nav ul li {
   flex: 1;
 }
 
-#nav li a {
+nav ul li a {
   text-decoration: none;
   display: block;
   text-align: center;
@@ -91,7 +91,7 @@ ul#nav {
   font-weight: 200;
 }
 
-#nav li a:hover {
+nav ul li a:hover {
   transition: 0.2s;
   font-weight: bold;
 }
@@ -327,4 +327,50 @@ code {
   font-size: 12px;
   text-align: center;
   margin: 20px 0;
+}
+
+#blog-years {
+  display: flex;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+#blog-years ul.articles {
+  /* listed horizontally, aligned left, flowing to the right and wrapping */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+#blog-years ul.articles li {
+  margin: 0.5rem;
+}
+#blog-years ul.articles li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+  color: #414140;
+  text-decoration: none;
+}
+#blog-years ul.articles li a.active {
+  background-color: #c7433f;
+  color: white;
+}
+#blog-years div.years {
+  /* listed vertically */
+  flex-direction: column;
+  align-items: center;
+}
+#blog-years div.years a {
+  display: block;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+  color: #414140;
+  text-decoration: none;
+}
+#blog-years div.years a.active {
+  background-color: #c7433f;
+  color: white;
 }

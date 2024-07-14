@@ -122,3 +122,68 @@ function updateBadge(currentBlogNumber) {
 
 // Call the function on page load
 fetchAndUpdateBlogInfo();
+
+if (window.location.pathname.startsWith("/blog")) {
+  document.addEventListener("DOMContentLoaded", () => {
+    // we'll now gather all the blog post titles and add them to the sub nav
+    const articles = document.querySelectorAll("article");
+    // grab the titles from the contained h2s and add to the article objects
+    // as well as the anchor links
+    articles.forEach((article) => {
+      const articleLink = article.querySelector("h2 a");
+      article.dataset.title = articleLink.textContent;
+      article.dataset.anchor = articleLink.href;
+      article.dataset.hash = articleLink.hash;
+    });
+
+    // get the sub nav nav#blog-years
+    const subNav = document.getElementById("blog-years");
+
+    // create a ul for the articles links to live in
+    const ul = document.createElement("ul");
+    ul.classList.add("articles");
+
+    // the list of years is already in there as <a href='/blog/2023'>2023</a> etc
+    // now let's add the articles to the sub nav
+    articles.forEach((article) => {
+      const hash = article.dataset.hash;
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = article.dataset.anchor;
+      a.textContent = hash;
+      a.title = article.dataset.title;
+      // on click, set this one to active and remove active from the others
+      a.addEventListener("click", (e) => {
+        // remove active from all the other links
+        ul.querySelectorAll("a").forEach((link) => link.classList.remove("active"));
+        // add active to this link
+        console.log("adding active to", a);
+        a.classList.add("active");
+        // also hide all articles except this one
+        articles.forEach((article) => {
+          const articleLink = article.querySelector("h2 a");
+          if (articleLink.hash === hash) {
+            article.style.display = "block";
+          } else {
+            article.style.display = "none";
+          }
+        });
+        // prevent "jumping" to the hash, but still update the URL
+        e.preventDefault();
+        window.history.pushState({}, "", a.href);
+      });
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+
+    // append the ul to the sub nav
+    subNav.appendChild(ul);
+
+    // automatically click on the proper link based on the URL hash
+    const hash = window.location.hash;
+    if (hash) {
+      const link = ul.querySelector(`a[href='${hash}']`);
+      if (link) link.click();
+    }
+  });
+}

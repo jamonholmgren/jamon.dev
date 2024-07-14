@@ -733,7 +733,8 @@ Function load_blog$ (uri$)
     End If
     
     ' add links to all the other years
-    h$ = "<div class='blog-years'>" + CRLF
+    h$ = "<nav id='blog-years' data-year='" + current_year$ + "'>" + CRLF
+    h$ = h$ + "<div class='years'>" + CRLF
     For i = Val(current_year$) To 2023 Step -1
         ' convert to string and strip spaces
         y$ = LTrim$(Str$(i))
@@ -741,15 +742,17 @@ Function load_blog$ (uri$)
         If _FILEEXISTS("./web/blog/" + y$ + ".html") Then
             If y$ = year$ Then
                 ' If current year, bold it
-                h$ = h$ + "<a href='/blog/" + y$ + "'><strong>" + y$ + "</strong></a>" + CRLF
+                h$ = h$ + "<a href='/blog/" + y$ + "' class='active'>" + y$ + "</a>" + CRLF
             Else
                 h$ = h$ + "<a href='/blog/" + y$ + "'>" + y$ + "</a>" + CRLF
             End If
         Else
-            h$ = h$ + "<span>" + "./web/blog/" + y$ + ".html" + "</span>" + CRLF
+            ' no blog articles for this year, skip
+            ' h$ = h$ + "<span>" + "./web/blog/" + y$ + ".html" + "</span>" + CRLF
         End If
     Next
     h$ = h$ + "</div>" + CRLF
+    h$ = h$ + "</nav>" + CRLF
 
     ' check if the year exists in `./web/blog/yyyy.html`
     If _FILEEXISTS("./web/blog/" + year$ + ".html") = 0 Then
@@ -787,8 +790,8 @@ Function full_html$ (title As String, body As String, pagename As String)
 
     h$ = h$ + "</head>" + CRLF
     h$ = h$ + "<body>" + CRLF
-    h$ = h$ + "<main>" + CRLF
-    
+    h$ = h$ + "<div class='container'>" + CRLF
+
     ' Load the header from header.html and add to h$
     Open "./web/header.html" For Input As #1
     Do While Not EOF(1)
@@ -797,17 +800,10 @@ Function full_html$ (title As String, body As String, pagename As String)
     Loop
     Close #1
 
-    ' Load the nav from nav.html and add to h$
-    Open "./web/nav.html" For Input As #1
-    Do While Not EOF(1)
-       Line Input #1, line$
-       h$ = h$ + process_template(line$, pagename) + CRLF
-    Loop
-    Close #1
-
+    h$ = h$ + "<main>" + CRLF
     h$ = h$ + body + CRLF
+    h$ = h$ + "</main>" + CRLF
 
-        
     ' Load the footer from footer.html and add to h$
     Open "./web/footer.html" For Input As #1
     Do While Not EOF(1)
@@ -815,9 +811,8 @@ Function full_html$ (title As String, body As String, pagename As String)
        h$ = h$ + process_template(line$, pagename) + CRLF
     Loop
     Close #1
-    
-    h$ = h$ + "</main>" + CRLF
 
+    h$ = h$ + "</div>" + CRLF ' container
     h$ = h$ + "</body>" + CRLF
     h$ = h$ + "</html>" + CRLF
     full_html = h$
