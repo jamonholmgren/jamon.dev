@@ -91,6 +91,7 @@ nav ul li a {
   line-height: 36px;
   font-size: 24px;
   font-weight: 200;
+  position: relative;
 }
 
 nav ul li a:hover {
@@ -99,15 +100,17 @@ nav ul li a:hover {
 }
 
 #unread-badge {
+  position: absolute;
+  right: 0;
   background-color: #c7433f;
   border-radius: 50%;
   color: white;
   padding: 1px 4px;
   font-size: 12px;
   font-weight: bold;
-  vertical-align: top;
-  margin-left: -5px;
-  display: inline-block;
+  /* vertical-align: top; */
+  /* margin-left: -5px; */
+  display: block;
   line-height: 14px;
 }
 
