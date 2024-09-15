@@ -355,6 +355,10 @@ code {
   width: 542px;
 }
 @media (max-width: 560px) {
+  body {
+    font-size: 24px;
+  }
+
   #blog-years {
     width: 100%;
   }
