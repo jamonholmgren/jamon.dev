@@ -56,5 +56,5 @@ I spent several days trying to figure out how to host this, and finally got it w
 
 ## Gotchas
 
-- If you're using a .dev domain like I am, you MUST use SSH. So how I handled this was I hosted the domain on DigitalOcean, and then used CloudFlare as a proxy in front of it. This way, I can use CloudFlare's free SSL certificate to enable HTTPS.
+- If you're using a .dev domain like I am, you MUST use SSL. So how I handled this was I hosted the domain on DigitalOcean, and then used CloudFlare as a proxy in front of it. This way, I can use CloudFlare's free SSL certificate to enable HTTPS.
 - There seems to be memory limits. I wasn't able to stream large HTML / CSS / JS files. I haven't figured out what those memory limits are, yet, but I'll update here when I do.
