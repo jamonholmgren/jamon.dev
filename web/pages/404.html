@@ -8,19 +8,13 @@ Whoa! This isn't the page you're looking for.
 
   <p>
     You can click a menu item above, or let me know
-    <a href="https://twitter.com/jamonholmgren">on Twitter</a> what URL is
-    broken.
+    <a href="https://twitter.com/jamonholmgren">on Twitter</a> what URL is broken.
   </p>
 
   <p>Or play a little game, if you want!</p>
 
   <!-- Thanks to @straker! https://gist.github.com/straker/ff00b4b49669ad3dec890306d348adc4 -->
-  <canvas
-    width="400"
-    height="400"
-    id="game"
-    style="border: 1px solid gray"
-  ></canvas>
+  <canvas width="400" height="400" id="game" style="border: 1px solid gray"></canvas>
 </article>
 <script>
   let canvas = document.getElementById("game");
@@ -156,11 +150,10 @@ Whoa! This isn't the page you're looking for.
       konamiProgress++;
 
       if (konamiProgress === konami.length - 1) {
+        console.log("konami code complete");
         konamiProgress = -1;
         // Play audio file https://github.com/jamonholmgren/jamondotbas/raw/main/fun/contra-title.mp3
-        let audio = new Audio(
-          "https://github.com/jamonholmgren/jamondotbas/raw/main/fun/contra-title.mp3"
-        );
+        let audio = new Audio("https://github.com/jamonholmgren/jamondotbas/raw/main/fun/contra-title.mp3");
         audio.play();
       }
     } else {
