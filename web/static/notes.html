@@ -3,226 +3,650 @@
 
   Hey there! Thanks for looking at my source code.
 
-  I'm Jamon Holmgren, author of this tiny website. I'd be honored if you would contribute
-  to this and make it better!
+  I'm Jamon Holmgren. I needed something like this, and so I built it.
+  
+  I'd be honored if you would contribute to this and make it better!
 
   The rules:
   
   1. One file only, no dependencies
   2. The source code has to be readable
 
-  If you like this little experiment, hit me up on Twitter: https://twitter.com/jamonholmgren
+  If you like this little experiment, hit me up on 𝕏: https://x.com/jamonholmgren or email me at hello@jamon.dev.
 
   Happy writing!
-
 -->
 <html lang="en">
   <head>
     <title>textbox.page - Simple text box for writing</title>
-    <meta name="description" content="Simple text box for writing, editing, copy/pasting." />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta
+      name="description"
+      content="Simple autosaving text box for writing and editing text. No accounts, no tracking, just a text box."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
     <style>
+      :root {
+        /* Dark theme (default) */
+        --bg-color: #252526;
+        --textarea-bg: #212121;
+        --text-color: #b9b9b9;
+        --settings-bg: #333333;
+        --border-color: #000000;
+        --font-size: 18px;
+        --transition-speed: 0.3s;
+      }
+
+      [data-theme="light"] {
+        --bg-color: #ffffff;
+        --textarea-bg: #f5f5f5;
+        --text-color: #333333;
+        --settings-bg: #e0e0e0;
+        --border-color: #cccccc;
+      }
+
+      [data-theme="sepia"] {
+        --bg-color: #f4ecd8;
+        --textarea-bg: #fbf7ef;
+        --text-color: #5f4b32;
+        --settings-bg: #ede6d4;
+        --border-color: #d3c6a6;
+      }
+
+      [data-theme="dusk"] {
+        --bg-color: #272822;
+        --textarea-bg: #2d2e27;
+        --text-color: #f8f8f2;
+        --settings-bg: #3e3d32;
+        --border-color: #49483e;
+        --accent-color: #fd971f;
+        --secondary-accent: #a6e22e;
+      }
+
       html,
       body {
-        background: #252526;
+        background: var(--bg-color);
         height: 100%;
         padding: 0;
         margin: 0;
-        font-family: monospace;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        transition: background var(--transition-speed) ease;
+        display: flex;
+        flex-direction: column;
+        color: var(--text-color);
       }
+
+      [data-theme="dusk"] body {
+        background: linear-gradient(135deg, #272822 0%, #3e3d32 100%);
+      }
+
+      [data-theme="dusk"] #t {
+        background: linear-gradient(to bottom, #2d2e27 0%, #272822 100%);
+        border: 1px solid #49483e;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      [data-theme="dusk"] .settings-group select,
+      [data-theme="dusk"] .settings-group input {
+        background: rgba(45, 46, 39, 0.8);
+        border: 1px solid #49483e;
+        color: #f8f8f2;
+      }
+
+      [data-theme="dusk"] #byline a,
+      [data-theme="dusk"] #byline a:visited {
+        color: var(--accent-color, #fd971f);
+        border-bottom: 1px dotted var(--accent-color, #fd971f);
+      }
+
+      [data-theme="dusk"] #byline a:hover {
+        border-bottom: 1px solid var(--accent-color, #fd971f);
+      }
+
+      [data-theme="dusk"] input[type="range"] {
+        accent-color: var(--accent-color, #fd971f);
+      }
+
+      [data-theme="dusk"] #stats {
+        color: var(--secondary-accent, #a6e22e);
+      }
+
       main {
         width: 100%;
-        height: 80%;
-        margin: 1% 0;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 10px 0;
+        box-sizing: border-box;
       }
+
       #t {
         display: block;
         width: 92%;
         padding: 3%;
-        height: 92%;
+        flex: 1;
+        min-height: 0;
         margin: 0 auto;
-        background: #212121;
-        font-size: 18px;
-        color: #b9b9b9;
-        border: 1px solid #000000;
-        font-family: Helvetica, sans-serif;
+        background: var(--textarea-bg);
+        font-size: var(--font-size);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        font-family: Helvetica, Arial, sans-serif;
         tab-size: 2;
+        transition: color var(--transition-speed) ease, background-color var(--transition-speed) ease;
+        resize: none; /* Disable resize since we're using flexbox */
+        border-radius: 4px;
+        outline: none;
+      }
+
+      #t:focus {
+        box-shadow: 0 0 0 2px rgba(128, 128, 128, 0.2);
       }
 
       #t.codemode {
         font-family: monospace;
       }
 
-      #byline {
-        text-align: center;
-        font-size: 14px;
-        color: #b9b9b9;
-        margin: 4% auto;
+      #t.font-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       }
+
+      #t.font-courier {
+        font-family: "Courier New", Courier, monospace;
+      }
+      #t.font-consolas {
+        font-family: Consolas, Monaco, "Andale Mono", monospace;
+      }
+      #t.font-serif {
+        font-family: "Georgia", serif;
+      }
+      #t.font-sans {
+        font-family: Helvetica, Arial, sans-serif;
+      }
+      #t.font-garamond {
+        font-family: Garamond, "Times New Roman", serif;
+      }
+
+      #t.font-palatino {
+        font-family: "Palatino Linotype", Palatino, serif;
+      }
+
+      #t.font-verdana {
+        font-family: Verdana, Geneva, sans-serif;
+      }
+
+      #t.font-tahoma {
+        font-family: Tahoma, Geneva, sans-serif;
+      }
+
+      #t.font-trebuchet {
+        font-family: "Trebuchet MS", sans-serif;
+      }
+
+      #t.font-bookman {
+        font-family: "Bookman Old Style", serif;
+      }
+
+      #byline {
+        width: 100%;
+        text-align: center;
+        font-size: 13px;
+        color: var(--text-color);
+        padding: 10px 5%;
+        line-height: 1.5;
+        box-sizing: border-box;
+        flex-shrink: 0; /* Prevent footer from shrinking */
+      }
+
       #byline a,
       #byline a:visited {
-        color: #b9b9b9;
+        color: var(--text-color);
+        text-decoration: none;
+        border-bottom: 1px dotted var(--text-color);
+        transition: border-bottom var(--transition-speed) ease;
+      }
+
+      #byline a:hover {
+        border-bottom: 1px solid var(--text-color);
+      }
+
+      .settings-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin: 8px auto;
+        max-width: 800px;
+      }
+
+      .settings-group {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .settings-group label {
+        margin-right: 3px;
+        white-space: nowrap;
+      }
+
+      .settings-group select,
+      .settings-group input {
+        padding: 4px 8px;
+        background: var(--textarea-bg);
+        color: var(--text-color);
+        border: 1px solid var(--text-color);
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+      }
+
+      .settings-group select:focus,
+      .settings-group input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(128, 128, 128, 0.2);
+      }
+
+      .settings-group input[type="range"] {
+        width: 80px;
+        margin: 0;
+        accent-color: var(--text-color);
+      }
+
+      #stats {
+        margin: 5px 0;
+      }
+
+      .divider {
+        display: inline-block;
+        margin: 0 5px;
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        .settings-container {
+          /* flex-direction: column; */
+          align-items: center;
+          gap: 5px;
+          margin: 5px auto;
+        }
+
+        .settings-group {
+          width: 100%;
+          justify-content: center;
+        }
+
+        #byline {
+          font-size: 11px;
+          margin: 0.5% auto;
+        }
+
+        .divider {
+          display: none;
+        }
+
+        main {
+          height: 70%;
+        }
       }
 
       .offscreen {
         clip-path: inset(100%);
-        clip: rect(1px 1px 1px 1px); /* IE 6/7 */
+        clip: rect(1px 1px 1px 1px);
         height: 1px;
         overflow: hidden;
         position: absolute;
-        white-space: nowrap; /* added line */
+        white-space: nowrap;
         width: 1px;
       }
     </style>
   </head>
   <body>
-    <script>
-      // if it's textbox.page, tell them it'll expire soon and to update
-      // their bookmark to textbox.jamon.dev
-      if (window.location.hostname === "textbox.page") {
-        alert(
-          "Hey there! It looks like you're using textbox.page. I'm going to let this domain expire. Please update your bookmark to textbox.jamon.dev. Thanks!"
-        );
-      }
-    </script>
     <main>
       <label for="t" class="offscreen">Text area for typing notes and code</label>
-      <textarea id="t"></textarea>
+      <textarea id="t" spellcheck="true" autocomplete="off"></textarea>
     </main>
-    <p id="byline">
-      Built by
-      <a href="https://jamonholmgren.com" target="_blank" rel="noopener">Jamon Holmgren</a>
-      &bull;
-      <a
-        href="https://github.com/jamonholmgren/jamon.dev/blob/main/web/static/notes.html"
-        target="_blank"
-        rel="noopener"
-        >GitHub Source</a
-      >
-      &bull;
-      <a href="https://infinite.red" target="_blank" rel="noopener">Infinite Red</a>
-      &bull;
-      <a href="javascript:codeMode()">Code Mode</a>
-      &bull;
-      <a href="javascript:writingMode()">Writing Mode</a>
-      &bull;
-      <span id="stats">0 lines, 0 words, 0 characters, 0 elapsed seconds</span>
-    </p>
+    <div id="byline">
+      <div class="settings-container">
+        <select id="theme" aria-label="Theme selection">
+          <option value="dark">Dark</option>
+          <option value="dusk">Dusk</option>
+          <option value="light">Light</option>
+          <option value="sepia">Sepia</option>
+        </select>
+
+        <select id="font" aria-label="Font selection">
+          <!-- Font options will be populated dynamically based on mode -->
+        </select>
+
+        <input type="range" id="fontSize" min="12" max="24" value="18" aria-label="Font size" />
+        <span id="fontSizeValue">18px</span>
+
+        <select id="modeSelect" aria-label="Mode selection">
+          <option value="writing">Writing</option>
+          <option value="code">Code</option>
+        </select>
+      </div>
+
+      <div id="stats">0 lines, 0 words, 0 characters, 0 elapsed seconds</div>
+
+      <div>
+        by
+        <a href="https://jamon.dev" target="_blank" rel="noopener">Jamon Holmgren</a>
+        <span class="divider">&bull;</span>
+        <a href="https://github.com/jamonholmgren/textbox.jamon.dev" target="_blank" rel="noopener">GitHub Source</a>
+        <span class="divider">&bull;</span>
+        <a href="./classic.html" target="_blank" rel="noopener">Classic</a>
+        <span class="divider">&bull;</span>
+        <a href="https://js.jamon.dev" target="_blank" rel="noopener">Simple JS Playground</a>
+      </div>
+    </div>
 
     <script>
-      var TAB_TEXT = "\t";
-      var mode = "text";
-      var DEFAULT_TEXT =
-        "Hey there! This is a simple textbox that you can paste, write, edit, and copy from. We'll remember what you wrote, even if you close the tab and come back. But don't worry -- we only store the information locally in your browser, not any servers or databases. We don't even have Google Analytics installed. Try the 'Code Mode' in the bottom bar!";
-      var t = document.getElementById("t");
+      // Constants
+      const DEFAULT_TEXT =
+        "Hey there! This is a simple textbox where you can take notes, write, paste, edit, and copy from. It will remember what you wrote, even if you close the tab and come back.\n\nBut don't worry -- this site only stores the information locally in your browser, not any servers or databases. I don't even have analytics, so I have no idea how many people use this (send me an email if you want!).\n\nTry changing the settings below...my favorite is Sepia color with Bookman font!";
+
+      // DOM elements
+      const textarea = document.getElementById("t");
+      const stats = document.getElementById("stats");
+      const themeSelect = document.getElementById("theme");
+      const fontSelect = document.getElementById("font");
+      const fontSizeInput = document.getElementById("fontSize");
+      const fontSizeValue = document.getElementById("fontSizeValue");
+      const modeSelect = document.getElementById("modeSelect");
+
+      // App state
+      let mode = "writing";
+      const startTime = new Date().getTime();
+
+      // Font management functions
+      function getCurrentFont() {
+        const fontClass = textarea.className.match(/font-(\w+)/);
+        return fontClass ? fontClass[1] : "bookman";
+      }
+
+      function isMonospaceFont(font) {
+        return ["mono", "courier", "consolas"].includes(font);
+      }
+
+      function saveModeFont(mode, font) {
+        const modeFonts = JSON.parse(localStorage.getItem("modeFonts") || "{}");
+        modeFonts[mode] = font;
+        localStorage.setItem("modeFonts", JSON.stringify(modeFonts));
+      }
+
+      function getModeFont(mode) {
+        const modeFonts = JSON.parse(localStorage.getItem("modeFonts") || "{}");
+        return modeFonts[mode];
+      }
+
+      function updateFontSizePreview(value) {
+        fontSizeValue.textContent = `${value}px`;
+        textarea.style.fontSize = `${value}px`;
+        document.documentElement.style.setProperty("--font-size", `${value}px`);
+      }
+
+      function updateStats() {
+        const lines = textarea.value.split("\n").length;
+        const words = textarea.value.split(/\s+/).filter((word) => word.length > 0).length;
+        const chars = textarea.value.length;
+        const seconds = Math.floor((new Date().getTime() - startTime) / 1000);
+        const timeDisplay = seconds < 59 ? `${seconds} elapsed seconds` : `${Math.floor(seconds / 60)} elapsed minutes`;
+
+        stats.textContent = `${lines} lines, ${words} words, ${chars} characters, ${timeDisplay}`;
+      }
+
+      function addFontOption(value, text, isDisabled) {
+        const isSelected = getCurrentFont() == value;
+        const option = document.createElement("option");
+        option.value = value;
+        option.text = text;
+        option.selected = isSelected;
+        if (isDisabled) {
+          option.disabled = true;
+          option.style.color = "#888";
+        }
+        fontSelect.add(option);
+      }
+
+      function updateFontOptions() {
+        // Clear existing options
+        fontSelect.innerHTML = "";
+
+        // Sans-serif fonts
+        addFontOption("sans", "Sans-serif", mode === "code");
+        addFontOption("verdana", "Verdana", mode === "code");
+        addFontOption("tahoma", "Tahoma", mode === "code");
+        addFontOption("trebuchet", "Trebuchet MS", mode === "code");
+
+        // Serif fonts
+        addFontOption("serif", "Georgia", mode === "code");
+        addFontOption("garamond", "Garamond", mode === "code");
+        addFontOption("palatino", "Palatino", mode === "code");
+        addFontOption("bookman", "Bookman", mode === "code");
+
+        // Monospace fonts
+        addFontOption("mono", "Monospace", false);
+        addFontOption("courier", "Courier New", false);
+        addFontOption("consolas", "Consolas", false);
+
+        // After adding all options, make sure the correct one is selected
+        if (fontSelect.value !== getCurrentFont()) fontSelect.value = getCurrentFont();
+      }
+
+      function fontToUse(settings) {
+        return getModeFont(mode) || settings.font || (mode === "code" ? "mono" : "sans");
+      }
+
+      function applyTheme(theme) {
+        themeSelect.value = theme;
+        document.documentElement.setAttribute("data-theme", theme);
+      }
+
+      function applyFontSize(fontSize) {
+        fontSizeInput.value = fontSize;
+        updateFontSizePreview(fontSize);
+      }
+
+      function applyFont(font) {
+        textarea.className = textarea.className.replace(/font-\w+/g, "").trim();
+        textarea.classList.add(`font-${font}`);
+      }
+
+      function applyMode(mode) {
+        textarea.classList.toggle("codemode", mode === "code");
+      }
+
+      // Settings management
+      function applySettings(settings = {}) {
+        const font = fontToUse(settings);
+        if (settings.theme) applyTheme(settings.theme);
+        if (settings.fontSize) applyFontSize(settings.fontSize);
+        applyFont(font);
+        applyMode(mode);
+        updateFontOptions();
+        if (fontSelect && font) fontSelect.value = font;
+      }
+
+      function updateSetting(setting, value) {
+        const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+        settings[setting] = value;
+        localStorage.setItem("settings", JSON.stringify(settings));
+        if (setting === "font") saveModeFont(mode, value);
+        applySettings({ [setting]: value });
+      }
+
+      function loadSettings() {
+        const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+        applySettings(settings);
+      }
 
       function setMode(newMode) {
+        if (newMode !== mode) saveModeFont(mode, getCurrentFont());
         mode = newMode;
-        if (mode === "code") {
-          t.classList.add("codemode");
-        } else {
-          t.classList.remove("codemode");
-        }
+        modeSelect.value = mode;
         localStorage.setItem("mode", mode);
-      }
-      function codeMode() {
-        setMode("code");
-      }
-      function writingMode() {
-        setMode("writing");
-      }
+        loadSettings();
 
-      var startTime = new Date().getTime();
-      var stats = document.getElementById("stats");
-      function updateStats() {
-        var lines = t.value.split("\n").length;
-        var words = t.value.split(/\w\s\w/).length;
-        var chars = t.value.split("").length;
-        var seconds = Math.floor((new Date().getTime() - startTime) / 1000);
-        var secondsMinutes =
-          seconds < 59 ? seconds + " elapsed seconds" : Math.floor(seconds / 60) + " elapsed minutes";
-        stats.innerText = lines + " lines, " + words + " words, " + chars + " characters, " + secondsMinutes;
-      }
-      setInterval(updateStats, 1000);
-
-      // text input event for character insertion
-      function insertText(el, text) {
-        var te = document.createEvent("TextEvent");
-        te.initTextEvent("textInput", true, true, null, text, 9, "en-US");
-        el.dispatchEvent(te);
+        // If current font is not a monospace font and we're in code mode,
+        // set it to the saved monospace font or default
+        if (mode === "code" && !isMonospaceFont(getCurrentFont())) {
+          const savedCodeFont = getModeFont("code");
+          updateSetting("font", savedCodeFont || "mono");
+        }
       }
 
-      function ready(fn) {
-        (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading")
-          ? fn()
-          : document.addEventListener("DOMContentLoaded", fn);
-      }
+      function handleEnter(e) {
+        const sel = textarea.selectionStart;
+        const text = textarea.value;
 
-      ready(function () {
-        mode = localStorage.getItem("mode") || "writing";
-        setMode(mode);
+        // Find start of the current line
+        let lineStart = sel;
+        while (lineStart > 0 && text[lineStart - 1] !== "\n") lineStart--;
 
-        t.value = localStorage.getItem("text") || DEFAULT_TEXT;
+        // Find indentation level
+        let indentation = "";
+        let i = lineStart;
+        while (text[i] === " " || text[i] === "\t") {
+          indentation += text[i];
+          i++;
+        }
 
-        t.addEventListener("input", function (ev) {
-          localStorage.setItem("text", t.value);
-          updateStats();
-        });
-        t.select();
-        t.focus();
-      });
+        if (indentation.length > 0) {
+          e.preventDefault();
 
-      // loading this tab key handler async for performance reasons
-      // adapted from https://stackoverflow.com/a/45396754/204044
-      var loadAsync = function () {
-        function tabHandler(e) {
-          if (mode !== "code") return;
-          if (e.keyCode === 13) {
-            // prettier-ignore
-            if (this.selectionStart === this.selectionEnd) {
-              var sel = this.selectionStart;
-              var text = this.value;
-              while (sel > 0 && text[sel - 1] != "\n") sel--;
-              var lineStart = sel;
-              while (text[sel] == " " || text[sel] == "\t") sel++;
-              if (sel > lineStart) {
-                document.execCommand("insertText", false, "\n" + text.substr(lineStart, sel - lineStart));
-                this.blur(); this.focus(); e.preventDefault(); return false;
-              }
-            }
-          } else if (e.keyCode === 9) {
-            e.preventDefault();
-            // prettier-ignore
-            if (this.selectionStart === this.selectionEnd) {
-              if (!e.shiftKey) {
-                document.execCommand("insertText", false, "\t");
-              } else {
-                if (this.selectionStart > 0 && this.value[this.selectionStart - 1] == "\t") document.execCommand("delete");
-              }
-            } else {
-              var selStart = this.selectionStart;
-              var selEnd = this.selectionEnd;
-              while (selStart > 0 && this.value[selStart - 1] != "\n") selStart--;
-              while (selEnd > 0 && this.value[selEnd - 1] != "\n" && selEnd < this.value.length) selEnd++;
-              var lines = this.value.substr(selStart, selEnd - selStart).split("\n");
-              for (var i = 0; i < lines.length; i++) {
-                if (i == lines.length - 1 && lines[i].length == 0) continue;
-                if (e.shiftKey) {
-                  if (lines[i].startsWith("\t")) lines[i] = lines[i].substr(1);
-                  else if (lines[i].startsWith("    ")) lines[i] = lines[i].substr(4);
-                } else lines[i] = "\t" + lines[i];
-              }
-              lines = lines.join("\n");
-              this.value = this.value.substr(0, selStart) + lines + this.value.substr(selEnd);
-              this.selectionStart = selStart;
-              this.selectionEnd = selStart + lines.length;
-            }
+          // Insert newline with same indentation
+          const insertText = "\n" + indentation;
+
+          // Use modern insertion API if available
+          if (typeof textarea.setRangeText === "function") {
+            textarea.setRangeText(insertText, sel, sel);
+            textarea.selectionStart = textarea.selectionEnd = sel + insertText.length;
+          } else {
+            // Fallback to execCommand for older browsers
+            document.execCommand("insertText", false, insertText);
           }
         }
-        t.addEventListener("keydown", tabHandler, false);
-      };
-      setTimeout(loadAsync, 1000);
+      }
+
+      function handleTab(e) {
+        e.preventDefault();
+
+        // No selection - simple tab insertion or removal
+        if (textarea.selectionStart === textarea.selectionEnd) {
+          const pos = textarea.selectionStart;
+
+          if (!e.shiftKey) {
+            // Insert tab
+            if (typeof textarea.setRangeText === "function") {
+              textarea.setRangeText("\t", pos, pos);
+              textarea.selectionStart = textarea.selectionEnd = pos + 1;
+            } else {
+              document.execCommand("insertText", false, "\t");
+            }
+          } else if (pos > 0 && textarea.value[pos - 1] === "\t") {
+            // Remove tab with shift+tab
+            if (typeof textarea.setRangeText === "function") {
+              textarea.setRangeText("", pos - 1, pos);
+              textarea.selectionStart = textarea.selectionEnd = pos - 1;
+            } else {
+              textarea.selectionStart = pos - 1;
+              textarea.selectionEnd = pos;
+              document.execCommand("delete");
+            }
+          }
+        } else {
+          const selStart = textarea.selectionStart;
+          const selEnd = textarea.selectionEnd;
+          const text = textarea.value;
+
+          // Find start of the first line
+          let start = selStart;
+          while (start > 0 && text[start - 1] !== "\n") start--;
+
+          // Find end of the last line
+          let end = selEnd;
+          while (end < text.length && text[end] !== "\n") end++;
+
+          // Get the selected text
+          const selectedText = text.substring(start, end);
+          const lines = selectedText.split("\n");
+
+          // Process each line
+          const processedLines = lines.map((line) => {
+            if (line.length === 0) return line;
+
+            if (e.shiftKey) {
+              // Unindent - remove tab or spaces
+              if (line.startsWith("\t")) {
+                return line.substring(1);
+              } else if (line.startsWith("    ")) {
+                return line.substring(4);
+              }
+              return line;
+            } else {
+              // Indent - add tab
+              return "\t" + line;
+            }
+          });
+
+          // Join the lines back
+          const newText = processedLines.join("\n");
+
+          // Replace the text
+          if (typeof textarea.setRangeText === "function") {
+            textarea.setRangeText(newText, start, end);
+            textarea.selectionStart = start;
+            textarea.selectionEnd = start + newText.length;
+          } else {
+            // Fallback
+            textarea.value = text.substring(0, start) + newText + text.substring(end);
+            textarea.selectionStart = start;
+            textarea.selectionEnd = start + newText.length;
+          }
+
+          // Save the changes
+          localStorage.setItem("text", textarea.value);
+        }
+      }
+
+      // Tab and indentation handling
+      function setupTabHandler() {
+        textarea.addEventListener("keydown", (e) => {
+          if (mode !== "code") return;
+          const isSelection = textarea.selectionStart !== textarea.selectionEnd;
+          if (e.key === "Enter" && !isSelection) handleEnter(e);
+          if (e.key === "Tab") handleTab(e);
+        });
+      }
+
+      function saveText() {
+        localStorage.setItem("text", textarea.value);
+        updateStats();
+      }
+
+      function setupEventListeners() {
+        textarea.addEventListener("input", saveText);
+        themeSelect.addEventListener("change", () => updateSetting("theme", themeSelect.value));
+        fontSelect.addEventListener("change", () => updateSetting("font", fontSelect.value));
+        fontSizeInput.addEventListener("input", () => updateFontSizePreview(fontSizeInput.value));
+        fontSizeInput.addEventListener("change", () => updateSetting("fontSize", fontSizeInput.value));
+        modeSelect.addEventListener("change", () => setMode(modeSelect.value));
+        setupTabHandler();
+      }
+
+      function init() {
+        setupEventListeners();
+        mode = localStorage.getItem("mode") || "writing";
+        textarea.value = localStorage.getItem("text") || DEFAULT_TEXT;
+        setMode(mode);
+        setInterval(updateStats, 1000);
+        textarea.select();
+        textarea.focus();
+      }
+      document.addEventListener("DOMContentLoaded", init);
     </script>
   </body>
 </html>

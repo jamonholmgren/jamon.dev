@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--
+
+  Hey there! Thanks for looking at my source code.
+
+  I'm Jamon Holmgren, author of this tiny website. I'd be honored if you would contribute
+  to this and make it better!
+
+  The rules:
+  
+  1. One file only, no dependencies
+  2. The source code has to be readable
+
+  If you like this little experiment, hit me up on Twitter: https://twitter.com/jamonholmgren
+
+  Happy writing!
+
+-->
+<html lang="en">
+  <head>
+    <title>textbox.page - Simple text box for writing</title>
+    <meta name="description" content="Simple text box for writing, editing, copy/pasting." />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <style>
+      html,
+      body {
+        background: #252526;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        font-family: monospace;
+      }
+      main {
+        width: 100%;
+        height: 80%;
+        margin: 1% 0;
+      }
+      #t {
+        display: block;
+        width: 92%;
+        padding: 3%;
+        height: 92%;
+        margin: 0 auto;
+        background: #212121;
+        font-size: 18px;
+        color: #b9b9b9;
+        border: 1px solid #000000;
+        font-family: Helvetica, sans-serif;
+        tab-size: 2;
+      }
+
+      #t.codemode {
+        font-family: monospace;
+      }
+
+      #byline {
+        text-align: center;
+        font-size: 14px;
+        color: #b9b9b9;
+        margin: 4% auto;
+      }
+      #byline a,
+      #byline a:visited {
+        color: #b9b9b9;
+      }
+
+      .offscreen {
+        clip-path: inset(100%);
+        clip: rect(1px 1px 1px 1px); /* IE 6/7 */
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap; /* added line */
+        width: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // if it's textbox.page, tell them it'll expire soon and to update
+      // their bookmark to textbox.jamon.dev
+      if (window.location.hostname === "textbox.page") {
+        alert(
+          "Hey there! It looks like you're using textbox.page. I'm going to let this domain expire. Please update your bookmark to textbox.jamon.dev. Thanks!"
+        );
+      }
+    </script>
+    <main>
+      <label for="t" class="offscreen">Text area for typing notes and code</label>
+      <textarea id="t"></textarea>
+    </main>
+    <p id="byline">
+      Built by
+      <a href="https://jamonholmgren.com" target="_blank" rel="noopener">Jamon Holmgren</a>
+      &bull;
+      <a
+        href="https://github.com/jamonholmgren/jamon.dev/blob/main/web/static/notes.html"
+        target="_blank"
+        rel="noopener"
+        >GitHub Source</a
+      >
+      &bull;
+      <a href="https://infinite.red" target="_blank" rel="noopener">Infinite Red</a>
+      &bull;
+      <a href="javascript:codeMode()">Code Mode</a>
+      &bull;
+      <a href="javascript:writingMode()">Writing Mode</a>
+      &bull;
+      <span id="stats">0 lines, 0 words, 0 characters, 0 elapsed seconds</span>
+    </p>
+
+    <script>
+      var TAB_TEXT = "\t";
+      var mode = "text";
+      var DEFAULT_TEXT =
+        "Hey there! This is a simple textbox that you can paste, write, edit, and copy from. We'll remember what you wrote, even if you close the tab and come back. But don't worry -- we only store the information locally in your browser, not any servers or databases. We don't even have Google Analytics installed. Try the 'Code Mode' in the bottom bar!";
+      var t = document.getElementById("t");
+
+      function setMode(newMode) {
+        mode = newMode;
+        if (mode === "code") {
+          t.classList.add("codemode");
+        } else {
+          t.classList.remove("codemode");
+        }
+        localStorage.setItem("mode", mode);
+      }
+      function codeMode() {
+        setMode("code");
+      }
+      function writingMode() {
+        setMode("writing");
+      }
+
+      var startTime = new Date().getTime();
+      var stats = document.getElementById("stats");
+      function updateStats() {
+        var lines = t.value.split("\n").length;
+        var words = t.value.split(/\w\s\w/).length;
+        var chars = t.value.split("").length;
+        var seconds = Math.floor((new Date().getTime() - startTime) / 1000);
+        var secondsMinutes =
+          seconds < 59 ? seconds + " elapsed seconds" : Math.floor(seconds / 60) + " elapsed minutes";
+        stats.innerText = lines + " lines, " + words + " words, " + chars + " characters, " + secondsMinutes;
+      }
+      setInterval(updateStats, 1000);
+
+      // text input event for character insertion
+      function insertText(el, text) {
+        var te = document.createEvent("TextEvent");
+        te.initTextEvent("textInput", true, true, null, text, 9, "en-US");
+        el.dispatchEvent(te);
+      }
+
+      function ready(fn) {
+        (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading")
+          ? fn()
+          : document.addEventListener("DOMContentLoaded", fn);
+      }
+
+      ready(function () {
+        mode = localStorage.getItem("mode") || "writing";
+        setMode(mode);
+
+        t.value = localStorage.getItem("text") || DEFAULT_TEXT;
+
+        t.addEventListener("input", function (ev) {
+          localStorage.setItem("text", t.value);
+          updateStats();
+        });
+        t.select();
+        t.focus();
+      });
+
+      // loading this tab key handler async for performance reasons
+      // adapted from https://stackoverflow.com/a/45396754/204044
+      var loadAsync = function () {
+        function tabHandler(e) {
+          if (mode !== "code") return;
+          if (e.keyCode === 13) {
+            // prettier-ignore
+            if (this.selectionStart === this.selectionEnd) {
+              var sel = this.selectionStart;
+              var text = this.value;
+              while (sel > 0 && text[sel - 1] != "\n") sel--;
+              var lineStart = sel;
+              while (text[sel] == " " || text[sel] == "\t") sel++;
+              if (sel > lineStart) {
+                document.execCommand("insertText", false, "\n" + text.substr(lineStart, sel - lineStart));
+                this.blur(); this.focus(); e.preventDefault(); return false;
+              }
+            }
+          } else if (e.keyCode === 9) {
+            e.preventDefault();
+            // prettier-ignore
+            if (this.selectionStart === this.selectionEnd) {
+              if (!e.shiftKey) {
+                document.execCommand("insertText", false, "\t");
+              } else {
+                if (this.selectionStart > 0 && this.value[this.selectionStart - 1] == "\t") document.execCommand("delete");
+              }
+            } else {
+              var selStart = this.selectionStart;
+              var selEnd = this.selectionEnd;
+              while (selStart > 0 && this.value[selStart - 1] != "\n") selStart--;
+              while (selEnd > 0 && this.value[selEnd - 1] != "\n" && selEnd < this.value.length) selEnd++;
+              var lines = this.value.substr(selStart, selEnd - selStart).split("\n");
+              for (var i = 0; i < lines.length; i++) {
+                if (i == lines.length - 1 && lines[i].length == 0) continue;
+                if (e.shiftKey) {
+                  if (lines[i].startsWith("\t")) lines[i] = lines[i].substr(1);
+                  else if (lines[i].startsWith("    ")) lines[i] = lines[i].substr(4);
+                } else lines[i] = "\t" + lines[i];
+              }
+              lines = lines.join("\n");
+              this.value = this.value.substr(0, selStart) + lines + this.value.substr(selEnd);
+              this.selectionStart = selStart;
+              this.selectionEnd = selStart + lines.length;
+            }
+          }
+        }
+        t.addEventListener("keydown", tabHandler, false);
+      };
+      setTimeout(loadAsync, 1000);
+    </script>
+  </body>
+</html>
