@@ -25,11 +25,15 @@ rsync -av -e ssh --exclude='*.command' --exclude='./app' --exclude='qb64' --excl
 echo "Copying the ./web folder to the build folder"
 ssh $SSH_USER@$DOMAIN "cp -r $REMOTE_REPO_FOLDER/web $REMOTE_BUILD_FOLDER/"
 
-echo "Ensuring qb64 is installed on the server..."
-ssh $SSH_USER@$DOMAIN "$REMOTE_REPO_FOLDER/bin/install_qb64"
+if [ "$1" = "--compile" ]; then
+  echo "Ensuring qb64 is installed on the server..."
+  ssh $SSH_USER@$DOMAIN "$REMOTE_REPO_FOLDER/bin/install_qb64"
 
-echo "Compiling the app using qb64"
-ssh $SSH_USER@$DOMAIN "cd $REMOTE_REPO_FOLDER && ../qb64/qb64 -x -o $REMOTE_BUILD_FOLDER/qb64_server $REMOTE_REPO_FOLDER/app.bas"
+  echo "Compiling the app using qb64"
+  ssh $SSH_USER@$DOMAIN "cd $REMOTE_REPO_FOLDER && ../qb64/qb64 -x -o $REMOTE_BUILD_FOLDER/qb64_server $REMOTE_REPO_FOLDER/app.bas"
+else
+  echo "Skipping compilation as --compile flag was not set"
+fi
 
 echo "Copying the qb64-watcher.service to /etc/systemd/system"
 ssh $SSH_USER@$DOMAIN "cp $REMOTE_REPO_FOLDER/bin/qb64-watcher.service /etc/systemd/system"
