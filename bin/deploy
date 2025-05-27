@@ -39,3 +39,5 @@ echo "Restarting the server"
 
 echo "Purging the cache"
 ./bin/purge
+
+echo "Done deploying."
