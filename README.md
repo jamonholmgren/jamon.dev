@@ -50,7 +50,7 @@ I spent several days trying to figure out how to host this, and finally got it w
 11. Now run the setup script to compile for this architecture (won't work without this!): `cd ./qb64 && ./setup_lnx.sh && cd -`
 12. Run `./qb64/qb64 --help` to ensure it works
 13. Now you have a version of qb64 to compile the source. Exit out of the ssh shell with `exit`
-14. When you're ready to deploy, edit the `./bin/env.sh` script to have your server's info, and then run `./bin/deploy`
+14. When you're ready to deploy, edit the `./bin/env.sh` script to have your server's info, and then run `./bin/deploy`. You can add a `--compile` flag to make it compile the QB app, if anything changed in app.bas.
 15. If you need to restart the QB server on DigitalOcean, use `./bin/restart` or `./bin/reboot` for a full reboot of the droplet
 16. To watch server logs, go into an SSH session on your droplet and then run `tail -f /var/log/syslog`
 
