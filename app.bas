@@ -77,14 +77,23 @@ Do
                     ' If the request was completed, we can reduce the number of active connections
                     connections = connections - 1
                     ' Timeout old connections
-                ElseIf Timer >= client_expiry(c) And Timer < client_expiry(c) + MIDNIGHT_FIX_WINDOW Then
-                    DebugLog "TIMED OUT: request for: " + client_uri(c)
-                    DebugLog " from " + _ConnectionAddress(client_handle(c))
-                    DebugLog " using " + client_browser(c)
-                    respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
-                    tear_down c
-                    ' If the request timed out, we can reduce the number of active connections
-                    connections = connections - 1
+                ElseIf Timer(.001) >= client_expiry(c) Then
+                    ' Check if we're near midnight and need special handling
+                    ' Timer resets at midnight (86400 seconds), so if expiry is > 80000 and Timer is < 10000
+                    ' we're likely past midnight and should NOT time out yet
+                    If client_expiry(c) > 80000 And Timer(.001) < 10000 Then
+                        ' We just crossed midnight, adjust the expiry time
+                        client_expiry(c) = client_expiry(c) - 86400
+                        ' Don't time out yet, continue processing
+                    Else
+                        DebugLog "TIMED OUT: request for: " + client_uri(c)
+                        DebugLog " from " + _ConnectionAddress(client_handle(c))
+                        DebugLog " using " + client_browser(c)
+                        respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
+                        tear_down c
+                        ' If the request timed out, we can reduce the number of active connections
+                        connections = connections - 1
+                    End If
                 End If
             End If
         Next
@@ -93,7 +102,9 @@ Do
     ' Accept any new connections
     If connections < MAX_CLIENTS Then
         newclient = _OpenConnection(host) ' monitor host connection
-        Do While newclient
+        ' Limit how many connections we accept per iteration to avoid starving existing connections
+        new_connections_this_cycle = 0
+        Do While newclient And new_connections_this_cycle < MAX_CLIENTS
             For c = 1 To MAX_CLIENTS
                 ' Find an empty client handle to handle this new connection
                 If client_handle(c) = 0 Then
@@ -102,11 +113,13 @@ Do
                     client_content_length(c) = -1
                     client_expiry(c) = Timer(.001) + EXPIRY_TIME
                     If client_expiry(c) >= 86400 Then client_expiry(c) = client_expiry(c) - 86400
+                    DebugLog "New connection #" + Str$(c) + " from " + _ConnectionAddress(newclient)
                     Exit For
                 End If
             Next
             
             connections = connections + 1
+            new_connections_this_cycle = new_connections_this_cycle + 1
 
             ' If we're at the max, stop accepting new connections
             If connections >= MAX_CLIENTS Then Exit Do
@@ -139,7 +152,10 @@ Sub tear_down (c As Integer)
     Shared client_request() As String
 
     ' Close the connection
-    Close #client_handle(c)
+    ' Check if handle is valid before closing
+    If client_handle(c) <> 0 Then
+        Close #client_handle(c)
+    End If
 
     'set handle to 0 so we know it's unused
     client_handle(c) = 0
@@ -170,6 +186,13 @@ Function handle_request% (c As Integer)
 
     ' Allocate space for the current line we're reading
     Dim cur_line As String
+
+    ' Check if connection is still valid before reading
+    If Not _CONNECTED(client_handle(c)) Then
+        DebugLog "Connection #" + Str$(c) + " is no longer valid"
+        handle_request = 1 ' Mark as complete to tear down
+        Exit Function
+    End If
 
     ' Read the first line of the request and store in s$
     Get #client_handle(c), , s$
@@ -502,6 +525,12 @@ Sub respond (c As Integer, header As String, payload As String, content_type As 
     ' extra newline to signify end of header
     out$ = out$ + CRLF
 
+    ' Check if connection is still valid before writing
+    If Not _CONNECTED(client_handle(c)) Then
+        DebugLog "Connection #" + Str$(c) + " closed before response could be sent"
+        Exit Sub
+    End If
+
     ' Put the header output to the handle
     Put #client_handle(c), , out$
 
@@ -528,14 +557,19 @@ Sub respond_static (c As Integer, header As String, filename as String, content_
     out$ = out$ + "Content-Type: " + content_type + "; charset=UTF-8" + CRLF
     out$ = out$ + CRLF
 
+    ' Check if connection is still valid before writing
+    If Not _CONNECTED(client_handle(c)) Then
+        DebugLog "Connection #" + Str$(c) + " closed before static response could be sent"
+        Exit Sub
+    End If
+
     ' output headers first
     Put #client_handle(c), , out$
 
     ' Read the file and write it to the handle
     ON ERROR GOTO StaticFileError
     Open "./web/static/" + filename For Input As #1
-    ON ERROR GOTO 0
-
+    
     Do While Not EOF(1)
        Line Input #1, line$
        out$ = line$ + CRLF
@@ -543,6 +577,7 @@ Sub respond_static (c As Integer, header As String, filename as String, content_
     Loop
 
     Close #1
+    ON ERROR GOTO 0
 
     ' Done!
 End Sub
@@ -561,14 +596,19 @@ Sub respond_binary (c As Integer, header As String, filename as String, content_
     out$ = out$ + "Content-Type: " + content_type + "; charset=UTF-8" + CRLF
     out$ = out$ + CRLF
 
+    ' Check if connection is still valid before writing
+    If Not _CONNECTED(client_handle(c)) Then
+        DebugLog "Connection #" + Str$(c) + " closed before binary response could be sent"
+        Exit Sub
+    End If
+
     ' output headers first
     Put #client_handle(c), , out$
 
     ' Read the file and write it to the handle
     ON ERROR GOTO StaticFileError
     Open "./web/static/" + filename For Binary As #1
-    ON ERROR GOTO 0
-
+    
     ' Define a buffer size, e.g., 1 KB chunks
     Const bufferSize = 1024
     Dim buffer As String * bufferSize
@@ -594,6 +634,7 @@ Sub respond_binary (c As Integer, header As String, filename as String, content_
     Wend
 
     Close #1
+    ON ERROR GOTO 0
 
     ' Done!
 End Sub
