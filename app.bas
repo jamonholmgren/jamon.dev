@@ -65,6 +65,7 @@ Dim client_browser(1 To MAX_CLIENTS) As String
 ' Dim client_content_encoding(1 To MAX_CLIENTS) As Integer
 
 connections = 0
+new_connections_this_cycle = 0
 
 DebugLog "Starting QB64 webserver on port " + DEFAULT_PORT
 
@@ -591,9 +592,9 @@ Sub respond_static (c As Integer, header As String, filename as String, content_
        out$ = line$ + CRLF
        Put #client_handle(c), , out$
     Loop
+    ON ERROR GOTO 0
 
     Close #1
-    ON ERROR GOTO 0
 
     ' Done!
 End Sub
@@ -648,9 +649,9 @@ Sub respond_binary (c As Integer, header As String, filename as String, content_
         ' Reduce the remaining file length by the size of the chunk just read
         fileLength = fileLength - Len(buffer)
     Wend
+    ON ERROR GOTO 0
 
     Close #1
-    ON ERROR GOTO 0
 
     ' Done!
 End Sub
