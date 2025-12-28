@@ -91,23 +91,27 @@ Do
                     ' If the request was completed, we can reduce the number of active connections
                     connections = connections - 1
                     ' Timeout old connections
-                ElseIf Timer(.001) >= client_expiry(c) Then
-                    ' Check if we're near midnight and need special handling
-                    ' Timer resets at midnight (86400 seconds), so if expiry is > 80000 and Timer is < 10000
-                    ' we're likely past midnight and should NOT time out yet
-                    If client_expiry(c) > 80000 And Timer(.001) < 10000 Then
-                        ' We just crossed midnight, adjust the expiry time
-                        client_expiry(c) = client_expiry(c) - 86400
-                        ' Don't time out yet, continue processing
-                    Else
+                ' Handle midnight wraparound: if expiry is close to midnight but Timer is small, we crossed midnight
+                ElseIf client_expiry(c) > 80000 And Timer(.001) < 10000 Then
+                    ' We just crossed midnight, adjust the expiry time down by one day
+                    client_expiry(c) = client_expiry(c) - 86400
+                    ' Now check if it's actually timed out
+                    If Timer(.001) >= client_expiry(c) Then
                         DebugLog "TIMED OUT: request for: " + client_uri(c)
                         DebugLog " from " + _ConnectionAddress(client_handle(c))
                         DebugLog " using " + client_browser(c)
                         respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
                         tear_down c
-                        ' If the request timed out, we can reduce the number of active connections
                         connections = connections - 1
                     End If
+                ' Normal timeout check
+                ElseIf Timer(.001) >= client_expiry(c) Then
+                    DebugLog "TIMED OUT: request for: " + client_uri(c)
+                    DebugLog " from " + _ConnectionAddress(client_handle(c))
+                    DebugLog " using " + client_browser(c)
+                    respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
+                    tear_down c
+                    connections = connections - 1
                 End If
             End If
         Next
