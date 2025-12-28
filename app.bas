@@ -1,5 +1,19 @@
 ' QB64 web server inspired by the one found here: https://github.com/smokingwheels/Yacy_front_end/blob/master/yacyfrontend.bas
 ' Modified to power https://jamon.dev
+'
+' HANG PREVENTION MEASURES:
+' This server includes several safeguards to prevent production hangs:
+' 1. Connection validation before all read/write operations using _CONNECTED()
+' 2. Improved midnight timer wraparound handling for proper timeouts
+' 3. Limited new connection acceptance per cycle to avoid starving existing requests
+' 4. Proper error handling that ensures files are always closed
+' 5. Defensive connection closing that checks handle validity
+'
+' These changes address the primary causes of server hangs:
+' - Blocking reads on broken/partial connections
+' - Failed writes to disconnected clients
+' - Connection floods monopolizing the event loop
+' - Timer edge cases at midnight preventing timeouts
 
 $Console:Only
 
@@ -22,6 +36,8 @@ Const METHOD_GET = 2
 Const METHOD_POST = 3
 
 ' Logging?
+' Set to 1 during debugging or when investigating production issues
+' Note: New logging has been added for connection lifecycle events
 Const ENABLE_LOG = 0 ' 0 for off, 1 for on
 
 ' When did the server start?
