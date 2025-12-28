@@ -3,17 +3,15 @@
 '
 ' HANG PREVENTION MEASURES:
 ' This server includes several safeguards to prevent production hangs:
-' 1. Connection validation before all read/write operations using _CONNECTED()
-' 2. Improved midnight timer wraparound handling for proper timeouts
-' 3. Limited new connection acceptance per cycle to avoid starving existing requests
-' 4. Proper error handling that ensures files are always closed
-' 5. Defensive connection closing that checks handle validity
+' 1. Improved midnight timer wraparound handling for proper timeouts
+' 2. Limited new connection acceptance per cycle to avoid starving existing requests
+' 3. Proper error handling that ensures files are always closed
+' 4. Defensive connection closing that checks handle validity
 '
 ' These changes address the primary causes of server hangs:
-' - Blocking reads on broken/partial connections
-' - Failed writes to disconnected clients
-' - Connection floods monopolizing the event loop
 ' - Timer edge cases at midnight preventing timeouts
+' - Connection floods monopolizing the event loop
+' - File handle leaks from errors during file operations
 
 $Console:Only
 
@@ -65,7 +63,6 @@ Dim client_browser(1 To MAX_CLIENTS) As String
 ' Dim client_content_encoding(1 To MAX_CLIENTS) As Integer
 
 connections = 0
-new_connections_this_cycle = 0
 
 DebugLog "Starting QB64 webserver on port " + DEFAULT_PORT
 
@@ -203,13 +200,6 @@ Function handle_request% (c As Integer)
 
     ' Allocate space for the current line we're reading
     Dim cur_line As String
-
-    ' Check if connection is still valid before reading
-    If Not _CONNECTED(client_handle(c)) Then
-        DebugLog "Connection #" + Str$(c) + " is no longer valid"
-        handle_request = 1 ' Mark as complete to tear down
-        Exit Function
-    End If
 
     ' Read the first line of the request and store in s$
     Get #client_handle(c), , s$
@@ -542,12 +532,6 @@ Sub respond (c As Integer, header As String, payload As String, content_type As 
     ' extra newline to signify end of header
     out$ = out$ + CRLF
 
-    ' Check if connection is still valid before writing
-    If Not _CONNECTED(client_handle(c)) Then
-        DebugLog "Connection #" + Str$(c) + " closed before response could be sent"
-        Exit Sub
-    End If
-
     ' Put the header output to the handle
     Put #client_handle(c), , out$
 
@@ -573,12 +557,6 @@ Sub respond_static (c As Integer, header As String, filename as String, content_
     out$ = out$ + "Connection: close" + CRLF
     out$ = out$ + "Content-Type: " + content_type + "; charset=UTF-8" + CRLF
     out$ = out$ + CRLF
-
-    ' Check if connection is still valid before writing
-    If Not _CONNECTED(client_handle(c)) Then
-        DebugLog "Connection #" + Str$(c) + " closed before static response could be sent"
-        Exit Sub
-    End If
 
     ' output headers first
     Put #client_handle(c), , out$
@@ -612,12 +590,6 @@ Sub respond_binary (c As Integer, header As String, filename as String, content_
     out$ = out$ + "Connection: close" + CRLF
     out$ = out$ + "Content-Type: " + content_type + "; charset=UTF-8" + CRLF
     out$ = out$ + CRLF
-
-    ' Check if connection is still valid before writing
-    If Not _CONNECTED(client_handle(c)) Then
-        DebugLog "Connection #" + Str$(c) + " closed before binary response could be sent"
-        Exit Sub
-    End If
 
     ' output headers first
     Put #client_handle(c), , out$

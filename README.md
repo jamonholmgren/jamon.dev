@@ -58,28 +58,4 @@ I spent several days trying to figure out how to host this, and finally got it w
 
 - If you're using a .dev domain like I am, you MUST use SSH. So how I handled this was I hosted the domain on DigitalOcean, and then used CloudFlare as a proxy in front of it. This way, I can use CloudFlare's free SSL certificate to enable HTTPS.
 - There seems to be memory limits. I wasn't able to stream large HTML / CSS / JS files. I haven't figured out what those memory limits are, yet, but I'll update here when I do.
-
-## Server Hang Prevention
-
-The server includes several safeguards to prevent it from hanging in production:
-
-1. **Connection Validation**: Before reading from or writing to a client connection, the server checks if the connection is still valid using `_CONNECTED()`. This prevents the server from blocking indefinitely on broken connections.
-
-2. **Improved Timeout Logic**: The timeout mechanism now properly handles the midnight wraparound case where QB64's `Timer()` function resets to 0 at midnight. Previously, connections could fail to timeout after midnight.
-
-3. **Connection Acceptance Limiting**: The server now limits how many new connections it accepts per event loop iteration. This prevents a flood of incoming connections from monopolizing CPU time and starving existing connections that need to be serviced.
-
-4. **Proper File Handle Management**: All file operations now ensure that files are closed even when errors occur, preventing file handle exhaustion.
-
-5. **Enhanced Logging**: When `ENABLE_LOG` is set to 1 in `app.bas`, additional logging is output for connection lifecycle events (new connections, timeouts, disconnections), making it easier to diagnose issues.
-
-### Debugging Production Hangs
-
-If the server hangs in production:
-
-1. Enable logging by setting `ENABLE_LOG = 1` in `app.bas` and recompiling
-2. Monitor the logs with `tail -f /var/log/syslog` or wherever stdout is redirected
-3. Look for patterns like:
-   - Connections timing out repeatedly (could indicate clients not sending complete requests)
-   - "Connection closed before" messages (broken client connections)
-   - Many new connections but few completions (potential DoS or misbehaving client)
+- To enable debug logging for troubleshooting server issues, set `ENABLE_LOG = 1` in `app.bas` and recompile.
