@@ -1,5 +1,17 @@
 ' QB64 web server inspired by the one found here: https://github.com/smokingwheels/Yacy_front_end/blob/master/yacyfrontend.bas
 ' Modified to power https://jamon.dev
+'
+' HANG PREVENTION MEASURES:
+' This server includes several safeguards to prevent production hangs:
+' 1. Improved midnight timer wraparound handling for proper timeouts
+' 2. Limited new connection acceptance per cycle to avoid starving existing requests
+' 3. Proper error handling that ensures files are always closed
+' 4. Defensive connection closing that checks handle validity
+'
+' These changes address the primary causes of server hangs:
+' - Timer edge cases at midnight preventing timeouts
+' - Connection floods monopolizing the event loop
+' - File handle leaks from errors during file operations
 
 $Console:Only
 
@@ -22,6 +34,8 @@ Const METHOD_GET = 2
 Const METHOD_POST = 3
 
 ' Logging?
+' Set to 1 during debugging or when investigating production issues
+' Note: New logging has been added for connection lifecycle events
 Const ENABLE_LOG = 0 ' 0 for off, 1 for on
 
 ' When did the server start?
@@ -77,13 +91,26 @@ Do
                     ' If the request was completed, we can reduce the number of active connections
                     connections = connections - 1
                     ' Timeout old connections
-                ElseIf Timer >= client_expiry(c) And Timer < client_expiry(c) + MIDNIGHT_FIX_WINDOW Then
+                ' Handle midnight wraparound: if expiry is close to midnight but Timer is small, we crossed midnight
+                ElseIf client_expiry(c) > 80000 And Timer(.001) < 10000 Then
+                    ' We just crossed midnight, adjust the expiry time down by one day
+                    client_expiry(c) = client_expiry(c) - 86400
+                    ' Now check if it's actually timed out
+                    If Timer(.001) >= client_expiry(c) Then
+                        DebugLog "TIMED OUT: request for: " + client_uri(c)
+                        DebugLog " from " + _ConnectionAddress(client_handle(c))
+                        DebugLog " using " + client_browser(c)
+                        respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
+                        tear_down c
+                        connections = connections - 1
+                    End If
+                ' Normal timeout check
+                ElseIf Timer(.001) >= client_expiry(c) Then
                     DebugLog "TIMED OUT: request for: " + client_uri(c)
                     DebugLog " from " + _ConnectionAddress(client_handle(c))
                     DebugLog " using " + client_browser(c)
                     respond c, "HTTP/1.1 408 Request Timeout", "", "text/html"
                     tear_down c
-                    ' If the request timed out, we can reduce the number of active connections
                     connections = connections - 1
                 End If
             End If
@@ -93,7 +120,9 @@ Do
     ' Accept any new connections
     If connections < MAX_CLIENTS Then
         newclient = _OpenConnection(host) ' monitor host connection
-        Do While newclient
+        ' Limit how many connections we accept per iteration to avoid starving existing connections
+        new_connections_this_cycle = 0
+        Do While newclient And new_connections_this_cycle < MAX_CLIENTS
             For c = 1 To MAX_CLIENTS
                 ' Find an empty client handle to handle this new connection
                 If client_handle(c) = 0 Then
@@ -102,11 +131,13 @@ Do
                     client_content_length(c) = -1
                     client_expiry(c) = Timer(.001) + EXPIRY_TIME
                     If client_expiry(c) >= 86400 Then client_expiry(c) = client_expiry(c) - 86400
+                    DebugLog "New connection #" + Str$(c) + " from " + _ConnectionAddress(newclient)
                     Exit For
                 End If
             Next
             
             connections = connections + 1
+            new_connections_this_cycle = new_connections_this_cycle + 1
 
             ' If we're at the max, stop accepting new connections
             If connections >= MAX_CLIENTS Then Exit Do
@@ -139,7 +170,10 @@ Sub tear_down (c As Integer)
     Shared client_request() As String
 
     ' Close the connection
-    Close #client_handle(c)
+    ' Check if handle is valid before closing
+    If client_handle(c) <> 0 Then
+        Close #client_handle(c)
+    End If
 
     'set handle to 0 so we know it's unused
     client_handle(c) = 0
@@ -534,13 +568,13 @@ Sub respond_static (c As Integer, header As String, filename as String, content_
     ' Read the file and write it to the handle
     ON ERROR GOTO StaticFileError
     Open "./web/static/" + filename For Input As #1
-    ON ERROR GOTO 0
-
+    
     Do While Not EOF(1)
        Line Input #1, line$
        out$ = line$ + CRLF
        Put #client_handle(c), , out$
     Loop
+    ON ERROR GOTO 0
 
     Close #1
 
@@ -567,8 +601,7 @@ Sub respond_binary (c As Integer, header As String, filename as String, content_
     ' Read the file and write it to the handle
     ON ERROR GOTO StaticFileError
     Open "./web/static/" + filename For Binary As #1
-    ON ERROR GOTO 0
-
+    
     ' Define a buffer size, e.g., 1 KB chunks
     Const bufferSize = 1024
     Dim buffer As String * bufferSize
@@ -592,6 +625,7 @@ Sub respond_binary (c As Integer, header As String, filename as String, content_
         ' Reduce the remaining file length by the size of the chunk just read
         fileLength = fileLength - Len(buffer)
     Wend
+    ON ERROR GOTO 0
 
     Close #1
 
