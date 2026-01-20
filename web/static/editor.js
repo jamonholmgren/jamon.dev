@@ -13,7 +13,7 @@
     isBlog: false,
     originalContent: {},
     currentArticleId: null,
-    editMode: true
+    editMode: false
   };
 
   // Determine if we're on a blog page
@@ -46,42 +46,19 @@
     // Store original content
     state.originalContent.main = main.innerHTML;
 
-    // Create title input
-    const titleContainer = document.createElement('div');
-    titleContainer.className = 'editor-title-container';
-    titleContainer.innerHTML = `
-      <label for="editor-title">Page Title:</label>
-      <input type="text" id="editor-title" value="${escapeHtml(state.pageTitle)}" />
-    `;
-    main.insertBefore(titleContainer, main.firstChild);
-
-    // Track title changes
-    const titleInput = document.getElementById('editor-title');
-    titleInput.addEventListener('input', () => {
-      markDirty();
-    });
-
-    // Make main content editable (excluding the title input)
-    const editableContent = document.createElement('div');
-    editableContent.className = 'editor-content';
-    editableContent.contentEditable = 'true';
-
-    // Move all content after title container into editable div
-    while (titleContainer.nextSibling) {
-      editableContent.appendChild(titleContainer.nextSibling);
-    }
-    main.appendChild(editableContent);
+    // Start with content not editable
+    main.contentEditable = 'false';
 
     // Store reference
-    state.editableElement = editableContent;
+    state.editableElement = main;
 
     // Track content changes
-    editableContent.addEventListener('input', () => {
+    main.addEventListener('input', () => {
       markDirty();
     });
 
     // Handle paste - clean up HTML
-    editableContent.addEventListener('paste', handlePaste);
+    main.addEventListener('paste', handlePaste);
   }
 
   // Initialize editor for blog pages
@@ -94,8 +71,8 @@
       // Store original content
       state.originalContent[articleId] = article.innerHTML;
 
-      // Make editable
-      article.contentEditable = 'true';
+      // Start with content not editable
+      article.contentEditable = 'false';
       article.dataset.editable = 'true';
 
       // Track changes
@@ -118,27 +95,46 @@
   function createToolbar() {
     const toolbar = document.createElement('div');
     toolbar.className = 'editor-toolbar';
+
+    // Include title input for pages (not blog)
+    const titleHtml = state.isBlog ? '' : `
+      <div class="editor-title-field">
+        <label for="editor-title">Title:</label>
+        <input type="text" id="editor-title" value="${escapeHtml(state.pageTitle)}" />
+      </div>
+    `;
+
     toolbar.innerHTML = `
-      <div class="editor-toolbar-status">
-        <span class="editor-status-indicator"></span>
-        <span class="editor-status-text">Ready</span>
+      <div class="editor-toolbar-content">
+        <div class="editor-toolbar-status">
+          <span class="editor-status-indicator"></span>
+          <span class="editor-status-text">Ready</span>
+        </div>
+        ${titleHtml}
+        <div class="editor-toolbar-actions">
+          <button class="editor-btn editor-btn-discard" disabled>Discard</button>
+          <button class="editor-btn editor-btn-save" disabled>Save</button>
+        </div>
       </div>
-      <div class="editor-toolbar-actions">
-        <label class="editor-toggle">
-          <input type="checkbox" checked>
-          <span class="editor-toggle-slider"></span>
-          <span class="editor-toggle-label">Edit</span>
-        </label>
-        <button class="editor-btn editor-btn-discard" disabled>Discard</button>
-        <button class="editor-btn editor-btn-save" disabled>Save</button>
-      </div>
+      <button class="editor-toolbar-toggle">
+        <span class="editor-toggle-icon pencil">✏️</span>
+        <span class="editor-toggle-icon close">✕</span>
+      </button>
     `;
     document.body.appendChild(toolbar);
 
-    // Edit mode toggle
-    toolbar.querySelector('.editor-toggle input').addEventListener('change', (e) => {
-      toggleEditMode(e.target.checked);
+    // Toolbar expand/collapse toggle (also toggles edit mode)
+    toolbar.querySelector('.editor-toolbar-toggle').addEventListener('click', () => {
+      toggleEditMode(!state.editMode);
     });
+
+    // Track title changes
+    const titleInput = toolbar.querySelector('#editor-title');
+    if (titleInput) {
+      titleInput.addEventListener('input', () => {
+        markDirty();
+      });
+    }
 
     // Save button
     toolbar.querySelector('.editor-btn-save').addEventListener('click', saveContent);
@@ -149,9 +145,12 @@
     state.toolbar = toolbar;
   }
 
-  // Toggle edit mode on/off
+  // Toggle edit mode on/off (also expands/collapses toolbar)
   function toggleEditMode(enabled) {
     state.editMode = enabled;
+
+    // Toggle toolbar expanded state
+    state.toolbar.classList.toggle('expanded', enabled);
 
     if (state.isBlog) {
       // Toggle all articles
@@ -164,11 +163,12 @@
       if (state.editableElement) {
         state.editableElement.contentEditable = enabled ? 'true' : 'false';
       }
-      // Toggle title input
-      const titleInput = document.getElementById('editor-title');
-      if (titleInput) {
-        titleInput.disabled = !enabled;
-      }
+    }
+
+    // Toggle title input in toolbar
+    const titleInput = document.getElementById('editor-title');
+    if (titleInput) {
+      titleInput.disabled = !enabled;
     }
 
     // Update toolbar state
@@ -292,11 +292,13 @@
       discardBtn.disabled = false;
       statusIndicator.className = 'editor-status-indicator dirty';
       statusText.textContent = 'Unsaved changes';
+      state.toolbar.classList.add('dirty');
     } else {
       saveBtn.disabled = true;
       discardBtn.disabled = true;
       statusIndicator.className = 'editor-status-indicator';
       statusText.textContent = 'Ready';
+      state.toolbar.classList.remove('dirty');
     }
   }
 
@@ -422,11 +424,12 @@ ${article.innerHTML.trim()}
       if (state.editableElement && state.originalContent.main) {
         state.editableElement.innerHTML = state.originalContent.main;
       }
-      // Restore title
-      const titleInput = document.getElementById('editor-title');
-      if (titleInput) {
-        titleInput.value = state.pageTitle;
-      }
+    }
+
+    // Restore title (in toolbar)
+    const titleInput = document.getElementById('editor-title');
+    if (titleInput) {
+      titleInput.value = state.pageTitle;
     }
 
     state.isDirty = false;

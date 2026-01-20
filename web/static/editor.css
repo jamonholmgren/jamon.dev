@@ -1,12 +1,17 @@
 /* Inline Content Editor Styles - Dev Mode Only */
 
 /* Editable content areas */
-[contenteditable="true"] {
-  outline: 2px dashed #4a9eff;
+[contenteditable] {
+  outline: 2px dashed transparent;
   outline-offset: 4px;
   min-height: 100px;
   padding: 8px;
   border-radius: 4px;
+  transition: outline-color 0.3s ease, background-color 0.3s ease;
+}
+
+[contenteditable="true"] {
+  outline-color: #4a9eff;
 }
 
 [contenteditable="true"]:focus {
@@ -14,29 +19,39 @@
   background-color: rgba(37, 99, 235, 0.02);
 }
 
-/* Title input container */
-.editor-title-container {
-  margin-bottom: 20px;
-  padding: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+[contenteditable="false"] {
+  outline-color: transparent;
 }
 
-.editor-title-container label {
-  display: block;
+/* Title input in toolbar */
+.editor-title-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-left: 1px solid #e2e8f0;
+  margin-left: 4px;
+  max-width: 300px;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.3s ease, max-width 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+}
+
+
+.editor-title-field label {
   font-size: 12px;
   font-weight: 600;
   color: #64748b;
-  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-.editor-title-container input {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 16px;
+.editor-title-field input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  font-size: 13px;
   font-weight: 500;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
@@ -44,10 +59,15 @@
   box-sizing: border-box;
 }
 
-.editor-title-container input:focus {
+.editor-title-field input:focus {
   outline: none;
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.editor-title-field input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
 }
 
 /* Main toolbar - fixed bottom right */
@@ -57,14 +77,108 @@
   right: 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 28px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 10000;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: border-radius 0.3s ease;
+}
+
+.editor-toolbar.expanded {
+  border-radius: 8px;
+}
+
+/* Toggle button (pencil/close) */
+.editor-toolbar-toggle {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  border-radius: 28px;
+  transition: background 0.2s ease;
+}
+
+.editor-toolbar-toggle:hover {
+  background: #f1f5f9;
+}
+
+.editor-toggle-icon {
+  position: absolute;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.editor-toggle-icon.pencil {
+  font-size: 24px;
+  filter: grayscale(100%);
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+.editor-toggle-icon.close {
+  font-size: 20px;
+  font-weight: bold;
+  color: #64748b;
+  opacity: 0;
+  transform: rotate(-90deg);
+}
+
+.editor-toolbar.expanded .editor-toggle-icon.pencil {
+  opacity: 0;
+  transform: rotate(90deg);
+}
+
+.editor-toolbar.expanded .editor-toggle-icon.close {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+/* Dirty indicator on collapsed button */
+.editor-toolbar-toggle::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  background: #f59e0b;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.editor-toolbar.dirty .editor-toolbar-toggle::after {
+  opacity: 1;
+  transform: scale(1);
+  animation: pulse 2s infinite;
+}
+
+/* Toolbar content wrapper */
+.editor-toolbar-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 12px 16px;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease,
+              padding 0.3s ease;
+}
+
+.editor-toolbar.expanded .editor-toolbar-content {
+  max-width: 800px;
+  opacity: 1;
+  padding: 12px 0 12px 16px;
 }
 
 .editor-toolbar-status {
@@ -95,55 +209,6 @@
 .editor-toolbar-actions {
   display: flex;
   gap: 8px;
-}
-
-/* iOS-style toggle switch */
-.editor-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.editor-toggle input {
-  display: none;
-}
-
-.editor-toggle-slider {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  background: #e2e8f0;
-  border-radius: 12px;
-  transition: background 0.3s ease;
-}
-
-.editor-toggle-slider::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.editor-toggle input:checked + .editor-toggle-slider {
-  background: #10b981;
-}
-
-.editor-toggle input:checked + .editor-toggle-slider::after {
-  transform: translateX(20px);
-}
-
-.editor-toggle-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #475569;
 }
 
 .editor-btn {
@@ -256,32 +321,9 @@ article[contenteditable="true"] {
   margin-bottom: 30px;
 }
 
-/* Editor content wrapper */
-.editor-content {
-  margin-top: 16px;
+/* Main content editable */
+main[contenteditable] {
+  min-height: 200px;
 }
 
-/* View mode - hide editing UI */
-.editor-view-mode [contenteditable="false"] {
-  outline: none;
-}
-
-.editor-view-mode .editor-title-container {
-  background: transparent;
-  border: none;
-  padding: 0;
-}
-
-.editor-view-mode .editor-title-container label {
-  display: none;
-}
-
-.editor-view-mode .editor-title-container input {
-  border: none;
-  background: transparent;
-  padding: 0;
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
-  cursor: default;
-}
+/* View mode - no additional styles needed, toggle handles it */
