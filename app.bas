@@ -428,6 +428,14 @@ Function handle_request% (c As Integer)
                     ' stream static file
                     respond_static c, "HTTP/1.1 200 OK", "scripts.js", "text/javascript"
                     Exit Function
+                Case InStr(client_uri(c), "/static/editor.js")
+                    ' editor javascript (dev mode only, but serve anyway)
+                    respond_static c, "HTTP/1.1 200 OK", "editor.js", "text/javascript"
+                    Exit Function
+                Case InStr(client_uri(c), "/static/editor.css")
+                    ' editor styles (dev mode only, but serve anyway)
+                    respond_static c, "HTTP/1.1 200 OK", "editor.css", "text/css"
+                    Exit Function
                 Case InStr(client_uri(c), "/static/favicon.svg")
                     ' stream static file
                     respond_static c, "HTTP/1.1 200 OK", "tractor.svg", "image/svg+xml"
@@ -453,7 +461,137 @@ Function handle_request% (c As Integer)
 
             respond c, "HTTP/1.1 " + code$, html$, content_type$
         Case METHOD_POST
-            GoTo unimplemented
+            ' Only allow POST in dev mode
+            If IsDevMode = 0 Then
+                GoTo unimplemented
+            End If
+
+            uri$ = client_uri(c)
+
+            ' Wait for full POST body if we know the content length
+            If client_content_length(c) > 0 Then
+                If Len(client_request(c)) < client_content_length(c) Then
+                    ' Not all data received yet, don't complete request
+                    handle_request = 0
+                    Exit Function
+                End If
+            End If
+
+            ' Handle /api/save-page
+            If InStr(uri$, "/api/save-page") > 0 Then
+                Dim pagePath As String
+                Dim pageContent As String
+                Dim pageTitle As String
+                Dim fullPath As String
+
+                pagePath = extractFormField$(client_request(c), "path")
+                pageContent = extractFormField$(client_request(c), "content")
+                pageTitle = extractFormField$(client_request(c), "title")
+
+                ' Validate the path
+                fullPath = "./web/pages/" + pagePath + ".html"
+                If isValidSavePath(fullPath, "./web/pages/") = 0 Then
+                    respond c, "HTTP/1.1 400 Bad Request", "{" + QT + "error" + QT + ":" + QT + "Invalid path" + QT + "}", "application/json"
+                    Exit Function
+                End If
+
+                ' Check file exists (we only edit existing pages)
+                If _FILEEXISTS(fullPath) = 0 Then
+                    respond c, "HTTP/1.1 404 Not Found", "{" + QT + "error" + QT + ":" + QT + "Page not found" + QT + "}", "application/json"
+                    Exit Function
+                End If
+
+                ' Build page content with title comment
+                Dim finalContent As String
+                finalContent = "<!--TITLE" + CRLF + pageTitle + CRLF + "-->" + CRLF + CRLF + pageContent
+
+                ' Write the file
+                writeFile fullPath, finalContent
+
+                respond c, "HTTP/1.1 200 OK", "{" + QT + "success" + QT + ":true}", "application/json"
+                DebugLog "Saved page: " + fullPath
+                Exit Function
+
+            ' Handle /api/save-article
+            ElseIf InStr(uri$, "/api/save-article") > 0 Then
+                Dim articleId As String
+                Dim articleYear As String
+                Dim articleContent As String
+                Dim blogPath As String
+
+                articleId = extractFormField$(client_request(c), "articleId")
+                articleYear = extractFormField$(client_request(c), "year")
+                articleContent = extractFormField$(client_request(c), "content")
+
+                ' Validate year (4 digits)
+                If Len(articleYear) <> 4 Then
+                    respond c, "HTTP/1.1 400 Bad Request", "{" + QT + "error" + QT + ":" + QT + "Invalid year" + QT + "}", "application/json"
+                    Exit Function
+                End If
+
+                blogPath = "./web/blog/" + articleYear + ".html"
+
+                ' Validate the path
+                If isValidSavePath(blogPath, "./web/blog/") = 0 Then
+                    respond c, "HTTP/1.1 400 Bad Request", "{" + QT + "error" + QT + ":" + QT + "Invalid path" + QT + "}", "application/json"
+                    Exit Function
+                End If
+
+                ' Check file exists
+                If _FILEEXISTS(blogPath) = 0 Then
+                    respond c, "HTTP/1.1 404 Not Found", "{" + QT + "error" + QT + ":" + QT + "Blog year not found" + QT + "}", "application/json"
+                    Exit Function
+                End If
+
+                ' Read existing blog file
+                Dim blogContent As String
+                Dim blogLine As String
+                blogContent = ""
+                Open blogPath For Input As #3
+                Do While Not EOF(3)
+                    Line Input #3, blogLine
+                    blogContent = blogContent + blogLine + CRLF
+                Loop
+                Close #3
+
+                ' Find and replace the article
+                Dim articleStart As String
+                Dim startPos As Long
+                Dim endPos As Long
+                Dim beforeArticle As String
+                Dim afterArticle As String
+
+                articleStart = "<article id=" + QT + articleId + QT
+                startPos = InStr(blogContent, articleStart)
+
+                If startPos = 0 Then
+                    respond c, "HTTP/1.1 404 Not Found", "{" + QT + "error" + QT + ":" + QT + "Article not found" + QT + "}", "application/json"
+                    Exit Function
+                End If
+
+                ' Find the closing </article> tag
+                endPos = InStr(startPos, blogContent, "</article>")
+                If endPos = 0 Then
+                    respond c, "HTTP/1.1 500 Internal Server Error", "{" + QT + "error" + QT + ":" + QT + "Malformed article" + QT + "}", "application/json"
+                    Exit Function
+                End If
+                endPos = endPos + Len("</article>")
+
+                ' Build new content
+                beforeArticle = Left$(blogContent, startPos - 1)
+                afterArticle = Mid$(blogContent, endPos)
+                blogContent = beforeArticle + articleContent + afterArticle
+
+                ' Write the file
+                writeFile blogPath, blogContent
+
+                respond c, "HTTP/1.1 200 OK", "{" + QT + "success" + QT + ":true}", "application/json"
+                DebugLog "Saved article: " + articleId + " in " + blogPath
+                Exit Function
+
+            Else
+                GoTo unimplemented
+            End If
         Case Else
             'This shouldn't happen because we would have EXITed FUNCTION earlier
             DebugLog "ERROR: Unknown method. This should never happen."
@@ -824,6 +962,15 @@ Function full_html$ (title As String, body As String, pagename As String)
     Loop
     Close #1
 
+    ' Inject editor resources in dev mode
+    If IsDevMode Then
+        h$ = h$ + "<script>window.JAMON_DEV_MODE = true;</script>" + CRLF
+        h$ = h$ + "<script>window.JAMON_FILE_PATH = '" + pagename + "';</script>" + CRLF
+        h$ = h$ + "<script>window.JAMON_PAGE_TITLE = " + QT + title + QT + ";</script>" + CRLF
+        h$ = h$ + "<link rel=" + QT + "stylesheet" + QT + " href=" + QT + "/static/editor.css" + QT + " />" + CRLF
+        h$ = h$ + "<script src=" + QT + "/static/editor.js" + QT + " defer></script>" + CRLF
+    End If
+
     h$ = h$ + "</head>" + CRLF
     h$ = h$ + "<body>" + CRLF
     h$ = h$ + "<div class='container'>" + CRLF
@@ -867,15 +1014,17 @@ Function load_page$ (pagename as String)
     Open "./web/pages/" + pagename + ".html" For Input As #1
     Do While Not EOF(1)
        Line Input #1, line$
-       
-       if line$ = "<!--TITLE" Then
-           h$ = h$ + line$ + CRLF
+
+       If line$ = "<!--TITLE" Then
            ' next line is the title! let's store it
            Line Input #1, line$
            title$ = line$
+           ' skip the closing --> line
+           Line Input #1, line$
+           ' Don't add the title block to body content
+       Else
+           h$ = h$ + process_template(line$, pagename) + CRLF
        End If
-    
-       h$ = h$ + process_template(line$, pagename) + CRLF
     Loop
     Close #1
 
@@ -899,4 +1048,95 @@ Sub DebugLog(s as String)
     if ENABLE_LOG = 1 then
         Print s
     end if
+End Sub
+
+' Returns true if running in dev mode (localhost)
+Function IsDevMode% ()
+    IsDevMode = (DEFAULT_HOST = "localhost")
+End Function
+
+' URL decode a string (handles %XX encoding and + for spaces)
+Function urlDecode$ (encoded As String)
+    Dim result As String
+    Dim i As Long
+    Dim ch As String
+
+    result = ""
+    i = 1
+    Do While i <= Len(encoded)
+        ch = Mid$(encoded, i, 1)
+        If ch = "%" And i + 2 <= Len(encoded) Then
+            ' Decode %XX hex sequence
+            Dim hexStr As String
+            hexStr = Mid$(encoded, i + 1, 2)
+            result = result + Chr$(Val("&H" + hexStr))
+            i = i + 3
+        ElseIf ch = "+" Then
+            ' Plus sign represents space
+            result = result + " "
+            i = i + 1
+        Else
+            result = result + ch
+            i = i + 1
+        End If
+    Loop
+    urlDecode = result
+End Function
+
+' Extract a field value from URL-encoded form data
+Function extractFormField$ (formData As String, fieldName As String)
+    Dim searchKey As String
+    Dim startPos As Long
+    Dim endPos As Long
+    Dim value As String
+
+    searchKey = fieldName + "="
+    startPos = InStr(formData, searchKey)
+
+    If startPos = 0 Then
+        extractFormField = ""
+        Exit Function
+    End If
+
+    startPos = startPos + Len(searchKey)
+    endPos = InStr(startPos, formData, "&")
+
+    If endPos = 0 Then
+        ' Last field in the form data
+        value = Mid$(formData, startPos)
+    Else
+        value = Mid$(formData, startPos, endPos - startPos)
+    End If
+
+    extractFormField = urlDecode$(value)
+End Function
+
+' Validate that a path is safe (no directory traversal, must be under allowed dirs)
+Function isValidSavePath% (path As String, allowedDir As String)
+    ' Check for directory traversal attempts
+    If InStr(path, "..") > 0 Then
+        isValidSavePath = 0
+        Exit Function
+    End If
+
+    ' Check path starts with allowed directory
+    If Left$(path, Len(allowedDir)) <> allowedDir Then
+        isValidSavePath = 0
+        Exit Function
+    End If
+
+    ' Check for other dangerous patterns
+    If InStr(path, "~") > 0 Then
+        isValidSavePath = 0
+        Exit Function
+    End If
+
+    isValidSavePath = -1
+End Function
+
+' Write content to a file (for saving edited pages)
+Sub writeFile (filePath As String, content As String)
+    Open filePath For Output As #2
+    Print #2, content;
+    Close #2
 End Sub
