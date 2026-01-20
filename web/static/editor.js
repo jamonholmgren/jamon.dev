@@ -12,7 +12,8 @@
     pageTitle: window.JAMON_PAGE_TITLE || '',
     isBlog: false,
     originalContent: {},
-    currentArticleId: null
+    currentArticleId: null,
+    editMode: true
   };
 
   // Determine if we're on a blog page
@@ -123,11 +124,21 @@
         <span class="editor-status-text">Ready</span>
       </div>
       <div class="editor-toolbar-actions">
+        <label class="editor-toggle">
+          <input type="checkbox" checked>
+          <span class="editor-toggle-slider"></span>
+          <span class="editor-toggle-label">Edit</span>
+        </label>
         <button class="editor-btn editor-btn-discard" disabled>Discard</button>
         <button class="editor-btn editor-btn-save" disabled>Save</button>
       </div>
     `;
     document.body.appendChild(toolbar);
+
+    // Edit mode toggle
+    toolbar.querySelector('.editor-toggle input').addEventListener('change', (e) => {
+      toggleEditMode(e.target.checked);
+    });
 
     // Save button
     toolbar.querySelector('.editor-btn-save').addEventListener('click', saveContent);
@@ -136,6 +147,40 @@
     toolbar.querySelector('.editor-btn-discard').addEventListener('click', discardChanges);
 
     state.toolbar = toolbar;
+  }
+
+  // Toggle edit mode on/off
+  function toggleEditMode(enabled) {
+    state.editMode = enabled;
+
+    if (state.isBlog) {
+      // Toggle all articles
+      const articles = document.querySelectorAll('article[data-editable]');
+      articles.forEach(article => {
+        article.contentEditable = enabled ? 'true' : 'false';
+      });
+    } else {
+      // Toggle page content
+      if (state.editableElement) {
+        state.editableElement.contentEditable = enabled ? 'true' : 'false';
+      }
+      // Toggle title input
+      const titleInput = document.getElementById('editor-title');
+      if (titleInput) {
+        titleInput.disabled = !enabled;
+      }
+    }
+
+    // Update toolbar state
+    const statusText = state.toolbar.querySelector('.editor-status-text');
+    if (enabled) {
+      statusText.textContent = state.isDirty ? 'Unsaved changes' : 'Ready';
+      document.body.classList.remove('editor-view-mode');
+    } else {
+      statusText.textContent = 'View mode';
+      document.body.classList.add('editor-view-mode');
+      hideSelectionToolbar();
+    }
   }
 
   // Create selection toolbar for formatting
