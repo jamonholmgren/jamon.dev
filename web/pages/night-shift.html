@@ -50,6 +50,12 @@ Night Shift Agentic Workflow - Jamon Holmgren
     Specs describe the feature, all the edge cases to cover, everything I can think of. They're well organized — not for
     the agent, but for ME. To organize my own thinking.
   </p>
+  <aside>
+    <p>
+      Spec writing is hard at first and gets easier. Don't give up because it's hard. Your brain will get better and
+      better at it.
+    </p>
+  </aside>
   <p>When I finish, I do not run the agent to implement the spec yet yet. I take a break.</p>
   <p>
     Then, if I have time, I take another feature. I write out the spec. I take my time. I work at a sustainable pace.
@@ -76,7 +82,9 @@ Night Shift Agentic Workflow - Jamon Holmgren
   <p>
     Critically, <code class="inline">@AGENTS.md</code> is a small (~150 line) "router", which tells the agent where to
     find documentation. This includes workflow docs, skill docs (I don't use agent skills directly; these are roughly
-    equivalent), and system documentation (describing different parts of the system).
+    equivalent), and system documentation (describing different parts of the system). Specs don't have to solve
+    everything for the agent. The more you push into docs instead, and have a good agent router to hint to the agent to
+    load those docs, the smaller your specs can be.
   </p>
   <p>I kick it off, and I lock my computer for the evening. I'm done. The Night Shift is on it.</p>
 
@@ -103,7 +111,9 @@ Night Shift Agentic Workflow - Jamon Holmgren
     <li>Implements the plan, including documentation adjustments (docs live in the same code base under Docs)</li>
     <li>
       Runs type checking, linting, compiler, other static analysis tools such as bundle size reporter, as many things as
-      possible, and of course the relevant tests themselves, and verifies that it works, iterating as it goes
+      possible, and of course the relevant tests themselves, and verifies that it works, iterating as it goes. Be as
+      strict as possible with your type checking and linting system. I used to be anti strictness, but that was when I
+      was a wetware dev. For agents, I want the most strictness possible.
     </li>
     <li>Run the entire test suite to protect against regressions, fix any new issues</li>
     <li>
@@ -121,6 +131,12 @@ Night Shift Agentic Workflow - Jamon Holmgren
     </li>
     <li>The Night Shift is done. It goes silent and waits for me to wake up.</li>
   </ol>
+  <aside>
+    <p>
+      Automated testing is incredibly important. This WILL NOT WORK if you don't have a super robust end-to-end testing
+      harness in place and excellent docs so the agents can create their own tests.
+    </p>
+  </aside>
 
   <h3>The Day Shift Clocks In</h3>
   <p>When I come in for the day shift, the first thing I do is review the changelog and look at the agent recap.</p>
@@ -174,6 +190,12 @@ Night Shift Agentic Workflow - Jamon Holmgren
     I can't paper over docs or workflow imperfections by steering it by hand. I must improve every day, so the next
     morning isn't spent cleaning up a mess. Constant improvement via a feedback loop is the key.
   </p>
+  <p>
+    You should be willing to burn all the tokens trying to make sure everything is as perfect as the agent can make it
+    before a human ever has to review anything. A human should not be having to catch basic obvious issues. If so, your
+    automated validations suck and you need to fix them. This includes having robust agent review steps.
+  </p>
+  <p>My time and energy are precious. I will not accept anything less than the agent's best.</p>
   <h3>The Results So Far</h3>
   <p>
     I started using early versions of this workflow about a month ago, and it has gotten better and better every day.
@@ -187,36 +209,6 @@ Night Shift Agentic Workflow - Jamon Holmgren
     Very little context shifting, more peaceful and relaxed workflow, and when the agent runs that night, it runs
     unimpeded by me.
   </p>
-  <aside>
-    <p>Some other notes:</p>
-    <ul>
-      <li>
-        Automated testing is incredibly important. This WILL NOT WORK if you don't have a super robust end-to-end
-        testing harness in place and excellent docs so the agents can create their own tests.
-      </li>
-      <li>
-        Spec writing is hard at first and gets easier. Don't give up because it's hard. Your brain will get better and
-        better at it.
-      </li>
-      <li>
-        Specs don't have to solve everything for the agent. The more that you push into docs instead, and have a good
-        agent router to hint to the agent to load those docs, the smaller your specs can be.
-      </li>
-      <li>
-        Be as strict as possible with your type checking and linting system. I used to be anti strictness, but that was
-        when I was a wetware dev. For agents, I want the most strictness possible.
-      </li>
-    </ul>
-    <p>
-      You should be willing to burn all the tokens trying to make sure everything is as perfect as the agent can make it
-      before a human ever has to review anything.
-    </p>
-    <p>
-      A human should not be having to catch basic obvious issues. If so, your automated validations suck and you need to
-      fix them. This includes having robust agent review steps.
-    </p>
-    <p>My time and energy are precious. I will not accept anything less than the agent's best.</p>
-  </aside>
   <aside>
     <p>
       One experiment I ran was to have Codex watch what Claude was doing and write feedback into a file. Claude knew it
