@@ -338,6 +338,48 @@ code {
   box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
+code.inline {
+  display: inline;
+  padding: 2px 6px;
+  margin: 0;
+  font-size: inherit;
+}
+
+aside {
+  border-left: 4px solid #9a9a98;
+  background-color: #e2e1de;
+  padding: 12px 20px;
+  margin: 20px 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.9em;
+  color: #555;
+}
+
+aside p:first-child {
+  margin-top: 0;
+}
+
+aside p:last-child {
+  margin-bottom: 0;
+}
+
+blockquote {
+  border-left: 4px solid #9a9a98;
+  background-color: #e2e1de;
+  padding: 12px 20px;
+  margin: 20px 0;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+}
+
+blockquote p:first-child {
+  margin-top: 0;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
 .copyright {
   font-size: 12px;
   text-align: center;
