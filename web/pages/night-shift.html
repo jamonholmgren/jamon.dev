@@ -113,7 +113,7 @@ Night Shift Agentic Workflow - Jamon Holmgren
       Runs type checking, linting, compiler, other static analysis tools such as bundle size reporter, as many things as
       possible, and of course the relevant tests themselves, and verifies that it works, iterating as it goes. Be as
       strict as possible with your type checking and linting system. I used to be anti strictness, but that was when I
-      was a wetware dev. For agents, I want the most strictness possible.
+      was a <abbr title="human developer (brain as hardware)">wetware dev</abbr>. For agents, I want the most strictness possible.
     </li>
     <li>Run the entire test suite to protect against regressions, fix any new issues</li>
     <li>
@@ -139,49 +139,37 @@ Night Shift Agentic Workflow - Jamon Holmgren
   </aside>
 
   <h3>The Day Shift Clocks In</h3>
-  <p>When I come in for the day shift, the first thing I do is review the changelog and look at the agent recap.</p>
-  <p>
-    Then I go commit by commit. I review each one, looking at the commit message and implementation diff. I examine the
-    tests it wrote and the code itself, the docs changes.
-  </p>
-  <p>
-    I keep all commits in the same branch. I want them to stack on each other (a good use for stacked PRs, btw).
-    Improvements should be used for each subsequent commit. Fewer conflicts, better results, less duplicative work.
-  </p>
-  <p>
-    If I need to correct something very quickly (low effort) I do it using an interactive agent session or just do it by
-    hand. But before I do, I ALWAYS analyze and correct the docs, workflow, validations/testing.
-  </p>
-  <aside>
-    <p>
-      <strong
-        >Sidenote: If your agent misbehaves and writes the wrong code, don't tell it to fix the code. And don't fix it
-        yourself.</strong
-      >
-    </p>
-    <p>
-      Use that valuable context to figure out WHY it did the wrong thing. Tell it the issue, have it analyze its own
-      context, and have it tell you what docs or skills or workflow is wrong, and what improvements would make it make
-      the right decision next time.
-    </p>
-    <p>
-      Then have it fix those issues. Be very diligent that it gets it right. Be prepared to hand tune this, because you
-      can amortize the improvement over the rest of your project.
-    </p>
-    <p>Only after that, have it fix the original issue.</p>
-    <p>
-      It's like a postmortem. Use that feedback cycle and continuous improvement to get to a point where it is making
-      the right decisions more often than not.)
-    </p>
-  </aside>
-  <p>I also test manually. I check almost every change manually, and thoroughly.</p>
-  <p>
-    It's not just that I want to catch bugs. I obviously do. But just as importantly, I want to catch gaps in my docs,
-    skills, specs, validations/tests, my own understanding of the system. And fix them!
-  </p>
-  <p>
-    Then I get back to the first part of this. I gather requirements, write specs, do architecture, and think a lot.
-  </p>
+  <ol>
+    <li>
+      <strong>Review:</strong> Check the changelog and agent recap. Then go commit by commit, reviewing each commit
+      message, implementation diff, tests, and docs changes.
+    </li>
+    <li>
+      <strong>Stacked commits:</strong> I keep all commits in the same branch so they stack on each other (a good use
+      for stacked PRs, btw). Improvements carry forward to each subsequent commit. Fewer conflicts, better results,
+      less duplicative work.
+    </li>
+    <li>
+      <strong>Quick fixes:</strong> If I need to correct something quickly, I do it using an interactive agent session
+      or by hand. But before I do, I ALWAYS analyze and correct the docs, workflow, and validations/testing first.
+    </li>
+    <li>
+      <strong>Postmortem:</strong> If the agent misbehaved, don't just fix the code. Don't tell it to fix the code
+      either. Use that valuable context to figure out <em>why</em> it did the wrong thing. Have it analyze its own
+      context and tell you what docs, skills, or workflow led it astray, and what improvements would make it make the
+      right decision next time. Have it fix those issues first — be diligent, because you can amortize the improvement
+      over the rest of your project. Only after that, have it fix the original issue. Use that feedback cycle and
+      continuous improvement to get to a point where it is making the right decisions more often than not.
+    </li>
+    <li>
+      <strong>Manual testing:</strong> I check almost every change manually and thoroughly. Not just to catch bugs, but
+      to catch gaps in my docs, skills, specs, validations/tests, and my own understanding of the system. And fix them!
+    </li>
+    <li>
+      <strong>Spec writing:</strong> Then I get back to the first part — gathering requirements, writing specs, doing
+      architecture, and thinking a lot.
+    </li>
+  </ol>
   <p>The Night Shift needs my best work. So I do my best work without context shifting and babysitting agents.</p>
   <p>That's my Night Shift agentic workflow.</p>
   <h3>The Feedback Loop</h3>
