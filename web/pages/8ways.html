@@ -1,0 +1,51 @@
+<!--TITLE
+The eight best ways I've improved my AI agent's code - Jamon Holmgren
+-->
+
+<h2>The eight best ways I've improved my AI agent's code</h2>
+
+<article>
+  <p><em>by Jamon Holmgren on April 14, 2026</em></p>
+
+  <p>
+    The things that have worked the best for me to keep agents like Claude or Codex from writing complete trash code.
+  </p>
+
+  <p>
+    (This assumes you're using the top models at medium to high reasoning, and paying $200+/mo for a good plan, not
+    $20.)
+  </p>
+
+  <ol>
+    <li>
+      Excellent test suite that the agent has to run and fix if anything is broken, and write its own tests. By far the
+      best way to improve outcomes. Also include linting, type checking, compiling, other static analysis tools and
+      validations, and even access to a debugger if I can make it happen.
+    </li>
+    <li>
+      Excellent docs covering systems, code style, testing strategies, and more that I hand-wrote initially and that the
+      agent has to keep up to date with every commit / PR.
+    </li>
+    <li>
+      An opinionated and carefully curated code base with well-named functions/classes/filenames, small files, extremely
+      flat folder structure, and an <code class="inline">AGENTS.md</code> that indexes and describes each concisely. Don't
+      let the intoxicating speed let this get out of hand. You'll pay for it.
+    </li>
+    <li>
+      Review agents, using codex to review Claude and vice versa. I have Claude spawn codex reviews via CLI and it works
+      super well. Also add in review checklists that it has to use before it's done.
+    </li>
+    <li>Well-written specifications that I hand-write and take my time on.</li>
+    <li>
+      Review every line of every change that it makes and update docs, tests, or how I write specifications to ensure
+      problems never happen again.
+    </li>
+    <li>
+      Run the agents at night so I am forced to improve everything above this one in order to not wake up to slop.
+    </li>
+    <li>
+      Be willing to hand-write features and bug fixes from time to time to make sure you stay in tune with the code
+      base.
+    </li>
+  </ol>
+</article>
